@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow border-0">
+        <div class="card-body p-4">
+          <h2 class="mb-4 text-center" style="color: var(--primary-color); font-weight: 600;">Login</h2>
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="id_username" class="form-label">Username</label>
+              <input type="text" name="username" class="form-control" id="id_username" required autofocus value="{{ form.username.value|default:'' }}">
+              {% if form.username.errors %}
+                <div class="text-danger small">{{ form.username.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            <div class="mb-3">
+              <label for="id_password" class="form-label">Password</label>
+              <input type="password" name="password" class="form-control" id="id_password" required>
+              {% if form.password.errors %}
+                <div class="text-danger small">{{ form.password.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-2">Login</button>
+          </form>
+          {% if form.errors %}
+            <div class="alert alert-danger mt-3" role="alert">
+              Invalid username or password.
+            </div>
+          {% endif %}
+          <div class="mt-3 text-center">
+            <span class="text-muted">Don't have an account?</span>
+            <a href="{% url 'accounts:register' %}" class="text-decoration-none" style="color: var(--primary-color);">Register</a>
+          </div>
+          <div class="mt-2 text-center">
+            <a href="{% url 'password_reset' %}" class="text-decoration-none small">Forgot password?</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

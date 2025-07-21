@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4" style="color: var(--primary-color); font-weight: 700;">Shopping Cart</h2>
+  <div class="table-responsive mb-4">
+    <table class="table align-middle" id="cartTable">
+      <thead class="table-light">
+        <tr>
+          <th scope="col"></th>
+          <th scope="col">Product</th>
+          <th scope="col">Price</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Total</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody id="cartBody">
+        <!-- JS will render cart rows here -->
+      </tbody>
+    </table>
+    <div id="emptyCartMsg" class="text-center text-muted py-4" style="display:none;">Your cart is empty.</div>
+  </div>
+  <div class="row justify-content-end">
+    <div class="col-md-5">
+      <div class="card p-4 shadow-sm">
+        <h5 class="mb-3">Order Summary</h5>
+        <div class="d-flex justify-content-between mb-2">
+          <span>Subtotal</span>
+          <span id="subtotal">₹0</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span>Shipping</span>
+          <span id="shipping">₹50</span>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between mb-3">
+          <span class="fw-bold">Total</span>
+          <span class="fw-bold" id="total">₹50</span>
+        </div>
+        <a href="{% url 'store:checkout' %}" class="btn btn-primary btn-lg w-100"><i class="fas fa-credit-card me-2"></i>Proceed to Checkout</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function renderCart() {
+  const cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
+  const cartBody = document.getElementById('cartBody');
+  const emptyMsg = document.getElementById('emptyCartMsg');
+  let subtotal = 0;
+  cartBody.innerHTML = '';
+  if (cart.length === 0) {
+    emptyMsg.style.display = '';
+  } else {
+    emptyMsg.style.display = 'none';
+    cart.forEach((item, idx) => {
+      const total = (item.price * item.qty);
+      subtotal += total;
+      cartBody.innerHTML += `
+        <tr data-idx="${idx}">
+          <td><img src="${item.image}" alt="${item.name}" style="width: 60px; border-radius: 0.5rem;"></td>
+          <td>${item.name}</td>
+          <td>₹${item.price.toFixed(2)}</td>
+          <td><input type="number" class="form-control form-control-sm cart-qty" value="${item.qty}" min="1" style="width: 70px;"></td>
+          <td>₹${total.toFixed(2)}</td>
+          <td><button class="btn btn-outline-danger btn-sm delete-row"><i class="fas fa-trash"></i></button></td>
+        </tr>
+      `;
+    });
+  }
+  document.getElementById('subtotal').textContent = '₹' + subtotal.toFixed(2);
+  let shipping = cart.length > 0 ? 50 : 0;
+  document.getElementById('shipping').textContent = '₹' + shipping;
+  document.getElementById('total').textContent = '₹' + (subtotal + shipping).toFixed(2);
+  // Update badge
+  if (window.updateCartBadge) updateCartBadge(cart.length);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderCart();
+  document.getElementById('cartBody').addEventListener('click', function(e) {
+    if (e.target.closest('.delete-row')) {
+      const row = e.target.closest('tr');
+      const idx = parseInt(row.getAttribute('data-idx'), 10);
+      let cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      cart.splice(idx, 1);
+      localStorage.setItem('cartItems', JSON.stringify(cart));
+      renderCart();
+    }
+  });
+  document.getElementById('cartBody').addEventListener('change', function(e) {
+    if (e.target.classList.contains('cart-qty')) {
+      const row = e.target.closest('tr');
+      const idx = parseInt(row.getAttribute('data-idx'), 10);
+      let cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      let qty = parseInt(e.target.value, 10);
+      if (qty < 1) qty = 1;
+      cart[idx].qty = qty;
+      localStorage.setItem('cartItems', JSON.stringify(cart));
+      renderCart();
+    }
+  });
+});
+</script>
+{% endblock %} 

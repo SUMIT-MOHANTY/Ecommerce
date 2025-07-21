@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+
+{% block title %}Customize Clothing - Your Online Store{% endblock %}
+
+{% block content %}
+<style>
+  body {
+    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%) !important;
+  }
+  .category-circle {
+    width: 90px; height: 90px;
+    background: linear-gradient(135deg, #fff 60%, #e0e7ff 100%);
+    border: 2.5px solid var(--primary-color);
+    border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-weight: 700; color: var(--primary-color);
+    box-shadow: 0 4px 16px rgba(99,102,241,0.10);
+    margin-bottom: 0.5rem;
+    transition: box-shadow 0.2s, transform 0.2s, background 0.2s;
+    cursor: pointer;
+    font-size: 1.1rem;
+    text-align: center;
+    position: relative;
+    padding: 0.2rem;
+  }
+  .category-circle i, .category-circle svg {
+    font-size: 2rem;
+    margin-bottom: 0.2rem;
+    color: var(--primary-color);
+    display: block;
+  }
+  .category-circle.god-goddess {
+    font-size: 1rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    line-height: 1.1;
+  }
+  .category-circle:hover {
+    box-shadow: 0 8px 32px rgba(99,102,241,0.18);
+    transform: translateY(-4px) scale(1.07);
+    background: #eef2ff;
+  }
+  .category-box {
+    background: linear-gradient(135deg, #f8fafc 60%, #e0e7ff 100%);
+    border-radius: 1.2rem;
+    box-shadow: 0 4px 24px rgba(99,102,241,0.10);
+    font-weight: 600;
+    color: var(--dark-color);
+    text-align: center;
+    padding: 2.2rem 1rem 1.2rem 1rem;
+    margin-bottom: 1.5rem;
+    transition: box-shadow 0.2s, transform 0.2s, border 0.2s;
+    border: 2px solid #e0e7ff;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 120px;
+  }
+  .category-box .cat-icon {
+    font-size: 1.7rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    display: block;
+    transition: color 0.2s;
+  }
+  .category-box:hover {
+    box-shadow: 0 8px 32px rgba(99,102,241,0.18);
+    transform: translateY(-4px) scale(1.03);
+    border: 2px solid var(--primary-color);
+    background: linear-gradient(135deg, #e0e7ff 60%, #fff 100%);
+    color: var(--primary-color);
+  }
+  .category-box:hover .cat-icon {
+    color: #4f46e5;
+  }
+  .fandom-scroll {
+    overflow-x: auto;
+    display: flex;
+    gap: 2rem;
+    padding: 1rem 0 2rem 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) #e0e7ff;
+  }
+  .fandom-scroll::-webkit-scrollbar {
+    height: 8px;
+  }
+  .fandom-scroll::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+  }
+  .fandom-icon {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e0e7ff 0%, #fff 100%);
+    box-shadow: 0 4px 16px rgba(99,102,241,0.12);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 0.5rem auto;
+    border: 2.5px solid #6366f1;
+    transition: box-shadow 0.2s, transform 0.2s, background 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+  .fandom-icon img, .fandom-icon svg {
+    width: 56px; height: 56px;
+    object-fit: contain;
+    display: block;
+  }
+  .fandom-icon:hover {
+    box-shadow: 0 8px 32px rgba(99,102,241,0.18);
+    transform: scale(1.10);
+    background: #fff;
+  }
+  .fandom-label {
+    font-weight: 700;
+    color: var(--primary-color);
+    text-align: center;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
+  }
+  .product-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.10);
+    transition: box-shadow 0.2s, transform 0.2s;
+    background: #fff;
+  }
+  .product-card:hover {
+    box-shadow: 0 8px 32px rgba(99,102,241,0.18);
+    transform: translateY(-4px) scale(1.03);
+  }
+  .product-img {
+    height: 180px;
+    object-fit: cover;
+    border-radius: 1rem 1rem 0 0;
+  }
+  .badge-sale {
+    background: var(--danger-color);
+    color: #fff;
+    font-size: 0.8rem;
+    position: absolute;
+    top: 12px; left: 12px;
+    border-radius: 0.5rem;
+    padding: 0.3em 0.7em;
+  }
+  .trust-row i {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+  .newsletter-box {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.10);
+    padding: 2rem;
+    margin-top: 2rem;
+    text-align: center;
+  }
+</style>
+
+<div class="container py-5">
+  <!-- Hero Banner -->
+  <div class="row mb-5 align-items-center" style="background: linear-gradient(90deg, #6366f1 0%, #a5b4fc 100%); border-radius: 1.5rem; box-shadow: 0 4px 24px rgba(99,102,241,0.10);">
+    <div class="col-md-7 p-5">
+      <h1 class="display-5 fw-bold text-white mb-3">Welcome to Customize Clothing</h1>
+      <p class="lead text-white mb-4">Discover trending styles, exclusive fandoms, and custom apparel. Shop now for the best deals!</p>
+      <a href="#featured" class="btn btn-light btn-lg fw-bold px-4">Shop Now</a>
+    </div>
+    <div class="col-md-5 text-center p-4">
+      <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80" alt="Hero Banner" class="img-fluid rounded shadow" style="max-height: 220px;">
+    </div>
+  </div>
+
+  <!-- Top Circular Icons -->
+  <div class="row justify-content-center mb-4 g-4">
+    <div class="col-6 col-sm-2 d-flex flex-column align-items-center">
+      <a href="{% url 'store:plain_shirt' %}" class="text-decoration-none">
+        <div class="category-circle"><i class="fas fa-tshirt"></i>Plain<br>Shirt</div>
+      </a>
+    </div>
+    <div class="col-6 col-sm-2 d-flex flex-column align-items-center">
+      <a href="{% url 'store:cap' %}" class="text-decoration-none">
+        <div class="category-circle"><i class="fas fa-hat-cowboy"></i>Cap</div>
+      </a>
+    </div>
+    <div class="col-6 col-sm-2 d-flex flex-column align-items-center">
+      <a href="{% url 'store:bottle' %}" class="text-decoration-none">
+        <div class="category-circle"><i class="fas fa-wine-bottle"></i>Bottle</div>
+      </a>
+    </div>
+    <div class="col-6 col-sm-2 d-flex flex-column align-items-center">
+      <a href="{% url 'store:mug' %}" class="text-decoration-none">
+        <div class="category-circle"><i class="fas fa-mug-hot"></i>Mug</div>
+      </a>
+    </div>
+    <div class="col-6 col-sm-2 d-flex flex-column align-items-center">
+      <a href="{% url 'store:god_goddess' %}" class="text-decoration-none">
+        <div class="category-circle god-goddess"><i class="fas fa-praying-hands"></i>God<br>& Goddess</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Box Style Categories -->
+  <div class="row g-4 mb-5">
+    <div class="col-12 col-md-4"><a href="{% url 'store:oversize' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-tshirt"></span>Oversize</div></a></div>
+    <div class="col-12 col-md-4"><a href="{% url 'store:polo_shirt' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-user-tie"></span>Polo Shirt</div></a></div>
+    <div class="col-12 col-md-4"><a href="{% url 'store:regular_thin' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-compress-arrows-alt"></span>Regular Thin</div></a></div>
+    <div class="col-12 col-md-4"><a href="{% url 'store:regular_thick' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-expand-arrows-alt"></span>Regular Thick</div></a></div>
+    <div class="col-12 col-md-4"><a href="{% url 'store:combo' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-layer-group"></span>Combo</div></a></div>
+    <div class="col-12 col-md-4"><a href="{% url 'store:couple' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-heart"></span>Couple</div></a></div>
+    <div class="col-12 col-md-4"><a href="{% url 'store:women_specific' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-female"></span>Women Specific</div></a></div>
+    <div class="col-12 col-md-4"><a href="{% url 'store:personal_customise' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-user-edit"></span>Personal Customise</div></a></div>
+    <div class="col-12 col-md-4"><a href="{% url 'store:sports' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-futbol"></span>Sports<br>(Cricket & Football)</div></a></div>
+    <div class="col-12 col-md-4"><a href="{% url 'store:regional_preference' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-globe-asia"></span>Regional Preference</div></a></div>
+  </div>
+
+  <!-- Fandom/Heroes Section -->
+  <div class="mb-5">
+    <h4 class="fw-bold mb-4 text-center" style="color: var(--primary-color); letter-spacing: 1px;">Fandom & Superhero Edition</h4>
+    <div class="fandom-scroll">
+      <div class="d-flex flex-column align-items-center">
+        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Captain_America%27s_shield.svg" alt="Captain America"></div>
+        <div class="fandom-label">Captain America</div>
+      </div>
+      <div class="d-flex flex-column align-items-center">
+        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Iron_Man_Mask.svg" alt="Iron Man"></div>
+        <div class="fandom-label">Iron Man</div>
+      </div>
+      <div class="d-flex flex-column align-items-center">
+        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/0/0c/Spider-Man_mask.svg" alt="Spider-Man"></div>
+        <div class="fandom-label">Spider-Man</div>
+      </div>
+      <div class="d-flex flex-column align-items-center">
+        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Thor%27s_Hammer.svg" alt="Thor"></div>
+        <div class="fandom-label">Thor</div>
+      </div>
+      <div class="d-flex flex-column align-items-center">
+        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Hulk_Fist.svg" alt="Hulk"></div>
+        <div class="fandom-label">Hulk</div>
+      </div>
+      <div class="d-flex flex-column align-items-center">
+        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Wolverine_Logo.svg" alt="Wolverine"></div>
+        <div class="fandom-label">Wolverine</div>
+      </div>
+      <div class="d-flex flex-column align-items-center">
+        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/5/58/Deadpool_logo.svg" alt="Deadpool"></div>
+        <div class="fandom-label">Deadpool</div>
+      </div>
+      <div class="d-flex flex-column align-items-center">
+        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6c/X-Men_logo.svg" alt="X-Men"></div>
+        <div class="fandom-label">X-Men</div>
+      </div>
+      <div class="d-flex flex-column align-items-center">
+        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/Scarlet_Witch_Icon.svg" alt="Wanda"></div>
+        <div class="fandom-label">Wanda</div>
+      </div>
+      <div class="d-flex flex-column align-items-center">
+        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/Game_of_Thrones_logo.svg" alt="Game of Thrones"></div>
+        <div class="fandom-label">Game of Thrones</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Products Section -->
+  <div class="mb-5" id="featured">
+    <h3 class="fw-bold mb-4 text-center" style="color: var(--primary-color);">Featured Products</h3>
+    <div class="row g-4 justify-content-center">
+      {% for i in "1234" %}
+      <div class="col-12 col-sm-6 col-lg-3">
+        <a href="{% url 'store:product_detail' i %}" class="text-decoration-none">
+          <div class="card product-card position-relative">
+            <span class="badge badge-sale">Sale</span>
+            <span class="badge bg-success position-absolute top-0 end-0 mt-2 me-2">New</span>
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80" class="product-img card-img-top" alt="Product {{ i }}">
+            <div class="card-body">
+              <h5 class="card-title">Product {{ i }}</h5>
+              <div class="mb-2">
+                <span class="text-warning">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
+                  <i class="far fa-star"></i>
+                </span>
+                <span class="text-muted small ms-1">4.5 (23)</span>
+              </div>
+              <p class="card-text text-muted">Trendy and comfortable. Limited stock!</p>
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="fw-bold text-primary">$19.99</span>
+                <button class="btn btn-outline-primary btn-sm" title="Add to Cart" onclick="addToCart({id: {{ i }}, name: 'Product {{ i }}', price: 19.99, image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80'}); event.preventDefault();"><i class="fas fa-cart-plus"></i></button>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Trust/Info Row -->
+  <div class="row trust-row text-center mb-5 g-4">
+    <div class="col-6 col-md-3">
+      <i class="fas fa-shipping-fast"></i>
+      <div class="fw-bold">Free Shipping</div>
+      <div class="text-muted small">On orders over $50</div>
+    </div>
+    <div class="col-6 col-md-3">
+      <i class="fas fa-undo"></i>
+      <div class="fw-bold">Easy Returns</div>
+      <div class="text-muted small">30-day return policy</div>
+    </div>
+    <div class="col-6 col-md-3">
+      <i class="fas fa-shield-alt"></i>
+      <div class="fw-bold">Secure Payment</div>
+      <div class="text-muted small">100% secure checkout</div>
+    </div>
+    <div class="col-6 col-md-3">
+      <i class="fas fa-headset"></i>
+      <div class="fw-bold">24/7 Support</div>
+      <div class="text-muted small">We're here to help</div>
+    </div>
+  </div>
+
+  <!-- Newsletter Signup -->
+  <div class="newsletter-box mt-5">
+    <h5 class="fw-bold mb-3" style="color: var(--primary-color);">Get Special Offers & Updates</h5>
+    <form class="row g-2 justify-content-center">
+      <div class="col-12 col-md-6">
+        <input type="email" class="form-control form-control-lg" placeholder="Your email address" required>
+      </div>
+      <div class="col-12 col-md-3">
+        <button type="submit" class="btn btn-primary btn-lg w-100">Subscribe</button>
+      </div>
+    </form>
+    <div class="text-muted small mt-2">No spam. Unsubscribe anytime.</div>
+  </div>
+</div>
+{% endblock %} 

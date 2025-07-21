@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow border-0 p-4">
+        <div class="text-center mb-3 position-relative">
+          {% if product.is_on_sale %}
+            <span class="badge badge-sale position-absolute top-0 start-0 mt-2 ms-2">{{ product.discount_percentage }}% OFF</span>
+          {% endif %}
+          <span class="badge bg-success position-absolute top-0 end-0 mt-2 me-2">New</span>
+          <img src="{{ product.image }}" alt="{{ product.name }}" class="img-fluid rounded" style="max-height: 250px;">
+        </div>
+        <h2 class="mb-2" style="color: var(--primary-color); font-weight: 700;">{{ product.name }}</h2>
+        <div class="mb-2">
+          <span class="text-warning">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star-half-alt"></i>
+            <i class="far fa-star"></i>
+          </span>
+          <span class="text-muted small ms-1">4.5 (23)</span>
+        </div>
+        <p class="text-muted mb-3">{{ product.description }}</p>
+        <div class="mb-4">
+          {% if product.is_on_sale %}
+            <span class="text-muted text-decoration-line-through me-2">${{ product.price }}</span>
+            <span class="fw-bold text-danger">${{ product.current_price }}</span>
+          {% else %}
+            <span class="fw-bold text-primary">${{ product.price }}</span>
+          {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+          <a href="#" onclick="addToCart({id: {{ product.id }}, name: '{{ product.name }}', price: {{ product.price }}, image: '{{ product.image }}'}); event.preventDefault();" class="btn btn-primary btn-lg w-100"><i class="fas fa-cart-plus me-2"></i>Add to Cart</a>
+          <a href="{% url 'store:checkout' %}" class="btn btn-warning btn-lg w-100 text-white"><i class="fas fa-bolt me-2"></i>Buy Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
