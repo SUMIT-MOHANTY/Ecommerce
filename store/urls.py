@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import cart_views
 
 app_name = 'store'
 
@@ -17,10 +18,42 @@ urlpatterns = [
     path('combo/', views.combo, name='combo'),
     path('couple/', views.couple, name='couple'),
     path('women-specific/', views.women_specific, name='women_specific'),
-    path('personal-customise/', views.personal_customise, name='personal_customise'),
+    path('personal-customise/', views.personal_customize_products, name='personal_customize_products'),
+    path('personal-customise/<int:product_id>/', views.customize_product, name='customize_product'),
+    path('personalize/', views.personalize_products, name='personalize_products'),
+    path('personalize/category/<str:category_name>/', views.personalize_category_products, name='personalize_category_products'),
+    path('personalize/<int:product_id>/', views.personalize_product, name='personalize_product'),
+    path('personalize/submit/', views.submit_personalization, name='submit_personalization'),
+    path('personalize/approve/', views.approve_personalization, name='approve_personalization'),
+    path('personalize/remove/', views.remove_personalization, name='remove_personalization'),
+    path('shopadmin/approve-personalization/', views.admin_approve_personalization, name='admin_approve_personalization'),
+    path('shopadmin/reject-personalization/', views.admin_reject_personalization, name='admin_reject_personalization'),
+    path('shopadmin/accept-order/', views.admin_accept_order, name='admin_accept_order'),
+    path('shopadmin/update-notes/', views.update_admin_notes, name='update_admin_notes'),
     path('sports/', views.sports, name='sports'),
     path('regional-preference/', views.regional_preference, name='regional_preference'),
+    path('category/<int:category_id>/', views.category_page, name='category_page'),
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
-    path('cart/', views.cart, name='cart'),
+    path('all-products/', views.all_products, name='all_products'),
+    path('cart/', cart_views.cart_page, name='cart'),
+    # Cart AJAX endpoints
+    path('cart/add/', cart_views.add_to_cart_ajax, name='add_to_cart_ajax'),
+    path('cart/update/', cart_views.update_cart_ajax, name='update_cart_ajax'),
+    path('cart/remove/', cart_views.remove_from_cart_ajax, name='remove_from_cart_ajax'),
+    path('cart/data/', cart_views.get_cart_data_ajax, name='get_cart_data_ajax'),
+    path('cart/clear/', cart_views.clear_cart_ajax, name='clear_cart_ajax'),
+    path('cart/count/', cart_views.cart_count, name='cart_count'),
+    path('cart/validate-stock/', cart_views.validate_cart_stock, name='validate_cart_stock'),
     path('checkout/', views.checkout, name='checkout'),
+    path('wallet/', views.wallet_view, name='wallet'),
+    path('return-order/<int:order_id>/', views.return_order, name='return_order'),
+    path('track-order/<int:order_id>/', views.track_order, name='track_order'),
+    path('shopadmin/', views.shop_admin_dashboard, name='shop_admin_dashboard'),
+    path('shopadmin/add-product/', views.add_product, name='add_product'),
+    path('shopadmin/edit-product/<int:product_id>/', views.edit_product, name='edit_product'),
+    path('shopadmin/delete-product/<int:product_id>/', views.delete_product, name='delete_product'),
+    path('shopadmin/add-category/', views.add_category, name='add_category'),
+    path('shopadmin/edit-category/<int:category_id>/', views.edit_category, name='edit_category'),
+    path('shopadmin/delete-category/<int:category_id>/', views.delete_category, name='delete_category'),
+    path('shopadmin/ajax-requests/', views.ajax_customization_requests, name='ajax_customization_requests'),
 ] 

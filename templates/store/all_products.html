@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Products - Customize Clothing{% endblock %}
+
+{% block content %}
+<style>
+  .all-products-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+  
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  
+  .page-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 2px;
+  }
+  
+  .page-subtitle {
+    color: #718096;
+    font-size: 1.1rem;
+  }
+  
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+  
+  .product-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .product-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .product-card:hover .product-image {
+    transform: scale(1.02);
+  }
+  
+  .product-info {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .product-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+    line-height: 1.3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  
+  .product-category {
+    color: #718096;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .product-description {
+    color: #718096;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    height: 3em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  
+  .product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+  }
+  
+  .product-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+  
+  .add-to-cart-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color)) !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 10 !important;
+    position: relative !important;
+    color: white !important;
+  }
+  
+  .add-to-cart-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  
+  .back-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+  }
+  
+  .back-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+    color: white;
+  }
+  
+  .products-count {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .count-text {
+    color: #2d3748;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2rem;
+    }
+    
+    .products-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    
+    .product-card {
+      height: 280px;
+    }
+    
+    .product-image {
+      height: 140px;
+    }
+    
+    .product-info {
+      padding: 0.875rem;
+    }
+    
+    .product-title {
+      font-size: 0.9rem;
+    }
+    
+    .add-to-cart-btn {
+      width: 32px !important;
+      height: 32px !important;
+    }
+    
+    .add-to-cart-btn i {
+      font-size: 0.8rem !important;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .products-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .product-card {
+      height: 300px;
+    }
+    
+    .product-image {
+      height: 160px;
+    }
+  }
+</style>
+
+<div class="all-products-container">
+  <div class="container">
+    <!-- Back Button -->
+    <a href="{% url 'store:home' %}" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+      Back to Home
+    </a>
+    
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">All Products</h1>
+      <p class="page-subtitle">Discover our complete collection of customizable products</p>
+    </div>
+    
+    <!-- Products Count -->
+    <div class="products-count">
+      <p class="count-text">
+        <i class="fas fa-box me-2"></i>
+        Showing {{ products.count }} product{{ products.count|pluralize }}
+      </p>
+    </div>
+    
+    <!-- Products Grid -->
+    {% if products %}
+    <div class="products-grid">
+      {% for product in products %}
+      <a href="{% url 'store:product_detail' product.id %}" class="product-card text-decoration-none">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
+        {% else %}
+          <div class="product-image" style="background: linear-gradient(135deg, #f8fafc, #e2e8f0); display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-image" style="font-size: 3rem; color: #cbd5e0;"></i>
+          </div>
+        {% endif %}
+        <div class="product-info">
+          <h3 class="product-title">{{ product.name }}</h3>
+          <p class="product-category">{{ product.category.name|default:'General' }}</p>
+          {% if product.description %}
+          <div class="product-description">
+            {{ product.description|truncatewords:20 }}
+          </div>
+          {% endif %}
+          <div class="product-footer">
+            <span class="product-price">${{ product.price }}</span>
+            <button class="add-to-cart-btn" title="Add to Cart" 
+                    data-id="{{ product.id }}" 
+                    data-name="{{ product.name|escapejs }}" 
+                    data-price="{{ product.price }}" 
+                    data-image="{% if product.image %}{{ product.image.url|escapejs }}{% endif %}"
+                    data-description="{{ product.description|escapejs|default:'' }}"
+                    onclick="event.stopPropagation(); event.preventDefault();">
+              <i class="fas fa-cart-plus"></i>
+            </button>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+      <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+      <h3 class="text-muted">No products available</h3>
+      <p class="text-muted">Check back later for new products!</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

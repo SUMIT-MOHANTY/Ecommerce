@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .success-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .success-card {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1); 
+    border-radius: 15px; 
+    border: none;
+    background: white;
+    text-align: center;
+    padding: 3rem 2rem;
+  }
+
+  .success-icon {
+    font-size: 4rem;
+    color: var(--success-color);
+    margin-bottom: 1.5rem;
+  }
+
+  .success-title {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .success-message {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .order-info {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: left;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .info-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .info-label {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .info-value {
+    color: var(--text-secondary);
+  }
+
+  .refund-highlight {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .refund-highlight i {
+    color: var(--success-color);
+  }
+
+  .btn-primary-custom {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border: none;
+    border-radius: 10px;
+    padding: 0.875rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    color: white;
+    margin: 0 0.5rem;
+  }
+
+  .btn-primary-custom:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    color: white;
+  }
+
+  .btn-secondary-custom {
+    background: var(--light-gray);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 10px;
+    padding: 0.875rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    margin: 0 0.5rem;
+  }
+
+  .btn-secondary-custom:hover {
+    background: #e5e7eb;
+    color: var(--text-primary);
+  }
+
+  @media (max-width: 768px) {
+    .success-container {
+      padding: 1rem 0;
+    }
+
+    .success-card {
+      padding: 2rem 1rem;
+    }
+
+    .success-title {
+      font-size: 1.75rem;
+    }
+
+    .success-icon {
+      font-size: 3rem;
+    }
+
+    .btn-primary-custom, .btn-secondary-custom {
+      width: 100%;
+      margin: 0.25rem 0;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-container">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="success-card">
+          <i class="fas fa-check-circle success-icon"></i>
+          <h2 class="success-title">Return Request Submitted</h2>
+          <p class="success-message">
+            Your return request has been successfully submitted and is being processed.
+          </p>
+
+          <!-- Order Information -->
+          <div class="order-info">
+            <h6 class="mb-3">Return Details</h6>
+            <div class="info-row">
+              <span class="info-label">Order ID:</span>
+              <span class="info-value">#{{ order.id }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Return Amount:</span>
+              <span class="info-value">${{ order.total_amount }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Return Date:</span>
+              <span class="info-value">{{ order.returned_at|date:"M d, Y - g:i A" }}</span>
+            </div>
+          </div>
+
+          <!-- Refund Information -->
+          <div class="refund-highlight">
+            <i class="fas fa-wallet me-2"></i>
+            <strong>Refund Processing:</strong> ${{ order.total_amount }} has been added to your wallet and is available for immediate use.
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="mt-4">
+            <a href="{% url 'store:wallet' %}" class="btn btn-primary-custom">
+              <i class="fas fa-wallet me-2"></i>View Wallet
+            </a>
+            <a href="{% url 'accounts:my_orders' %}" class="btn btn-secondary-custom">
+              <i class="fas fa-list me-2"></i>My Orders
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

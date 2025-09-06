@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .return-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  .return-title { 
+    color: var(--primary-color); 
+    font-weight: 700;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+
+  .return-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 2px;
+  }
+
+  .return-card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+    border-radius: 12px; 
+    border: none;
+    background: white;
+    transition: all 0.3s ease;
+  }
+  
+  .return-card:hover { 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12); 
+    transform: translateY(-1px);
+  }
+  
+  .return-card h5 { 
+    color: var(--text-primary); 
+    font-weight: 600; 
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .order-info {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .info-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .info-label {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .info-value {
+    color: var(--text-secondary);
+  }
+
+  .form-label { 
+    color: var(--text-primary); 
+    font-weight: 600; 
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control {
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+  }
+
+  .btn-return {
+    background: linear-gradient(135deg, var(--danger-color), #dc2626);
+    border: none;
+    border-radius: 10px;
+    padding: 0.875rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    color: white;
+  }
+
+  .btn-return:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    color: white;
+  }
+
+  .btn-cancel {
+    background: var(--light-gray);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 10px;
+    padding: 0.875rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-cancel:hover {
+    background: #e5e7eb;
+    color: var(--text-primary);
+  }
+
+  .alert-danger { 
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
+  }
+
+  .refund-info {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .refund-info i {
+    color: var(--success-color);
+  }
+
+  @media (max-width: 768px) {
+    .return-container {
+      padding: 1rem 0;
+    }
+
+    .return-title {
+      font-size: 1.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .order-info {
+      padding: 1rem;
+    }
+
+    .btn-return, .btn-cancel {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="return-container">
+  <div class="container">
+    <h2 class="return-title">Return Order</h2>
+
+    {% if error %}
+      <div class="alert alert-danger mb-4">
+        <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+      </div>
+    {% endif %}
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="return-card p-4">
+          <h5><i class="fas fa-undo me-2"></i>Order Return Request</h5>
+
+          <!-- Order Information -->
+          <div class="order-info">
+            <h6 class="mb-3">Order Details</h6>
+            <div class="info-row">
+              <span class="info-label">Order ID:</span>
+              <span class="info-value">#{{ order.id }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Order Date:</span>
+              <span class="info-value">{{ order.created_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Total Amount:</span>
+              <span class="info-value">${{ order.total_amount }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Payment Method:</span>
+              <span class="info-value">{{ order.get_payment_method_display }}</span>
+            </div>
+            {% if order.delivery_date %}
+            <div class="info-row">
+              <span class="info-label">Delivery Date:</span>
+              <span class="info-value">{{ order.delivery_date|date:"M d, Y" }}</span>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Refund Information -->
+          <div class="refund-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Refund Policy:</strong> The full order amount of ${{ order.total_amount }} will be refunded to your wallet and can be used for future purchases.
+          </div>
+
+          <!-- Return Form -->
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+              <label class="form-label">Reason for Return <span class="text-danger">*</span></label>
+              <textarea name="reason" class="form-control" rows="4" required 
+                        placeholder="Please provide a reason for returning this order..."></textarea>
+            </div>
+
+            <div class="d-flex gap-3">
+              <button type="submit" class="btn btn-return">
+                <i class="fas fa-check me-2"></i>Submit Return Request
+              </button>
+              <a href="{% url 'accounts:my_orders' %}" class="btn btn-cancel">
+                <i class="fas fa-times me-2"></i>Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

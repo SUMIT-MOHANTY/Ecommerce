@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .tracking-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  .tracking-title { 
+    color: var(--primary-color); 
+    font-weight: 700;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+
+  .tracking-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 2px;
+  }
+
+  .tracking-card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+    border-radius: 12px; 
+    border: none;
+    background: white;
+    margin-bottom: 2rem;
+  }
+
+  .order-info {
+    background: #f8fafc;
+    border-radius: 10px 10px 0 0;
+    padding: 1.5rem;
+  }
+
+  .tracking-timeline {
+    padding: 2rem;
+  }
+
+  .timeline-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .timeline-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  .timeline-icon.completed {
+    background: var(--success-color);
+    color: white;
+  }
+
+  .timeline-icon.current {
+    background: var(--primary-color);
+    color: white;
+  }
+
+  .timeline-icon.pending {
+    background: #e5e7eb;
+    color: #6b7280;
+  }
+
+  .timeline-content {
+    flex: 1;
+  }
+
+  .timeline-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .timeline-date {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  .timeline-line {
+    position: absolute;
+    left: 20px;
+    top: 40px;
+    bottom: -2rem;
+    width: 2px;
+    background: #e5e7eb;
+    z-index: 1;
+  }
+
+  .timeline-item:last-child .timeline-line {
+    display: none;
+  }
+
+  .timeline-line.completed {
+    background: var(--success-color);
+  }
+
+  @media (max-width: 768px) {
+    .tracking-container {
+      padding: 1rem 0;
+    }
+
+    .tracking-title {
+      font-size: 1.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .timeline-item {
+      margin-bottom: 1.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tracking-container">
+  <div class="container">
+    <h2 class="tracking-title">Order Tracking</h2>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="tracking-card">
+          <div class="order-info">
+            <div class="row">
+              <div class="col-md-6">
+                <h6>Order #{{ order.id }}</h6>
+                <p class="mb-1"><strong>Status:</strong> {{ order.get_status_display }}</p>
+                {% if order.tracking_number %}
+                  <p class="mb-1"><strong>Tracking Number:</strong> {{ order.tracking_number }}</p>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <p class="mb-1"><strong>Order Date:</strong> {{ order.created_at|date:"M d, Y" }}</p>
+                <p class="mb-1"><strong>Expected Delivery:</strong> {{ order.delivery_date|date:"M d, Y" }}</p>
+                <p class="mb-0"><strong>Total:</strong> ${{ order.total_amount }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tracking-timeline">
+            <h6 class="mb-4">Tracking Timeline</h6>
+            
+            <!-- Order Placed -->
+            <div class="timeline-item">
+              <div class="timeline-icon completed">
+                <i class="fas fa-check"></i>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-title">Order Placed</div>
+                <div class="timeline-date">{{ order.created_at|date:"M d, Y - g:i A" }}</div>
+              </div>
+              <div class="timeline-line completed"></div>
+            </div>
+
+            <!-- Processing -->
+            <div class="timeline-item">
+              <div class="timeline-icon {% if order.status == 'processing' %}current{% else %}completed{% endif %}">
+                <i class="fas fa-cog"></i>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-title">Processing</div>
+                <div class="timeline-date">
+                  {% if order.status == 'processing' %}
+                    In progress
+                  {% else %}
+                    Completed
+                  {% endif %}
+                </div>
+              </div>
+              <div class="timeline-line {% if order.status != 'processing' %}completed{% endif %}"></div>
+            </div>
+
+            <!-- Shipped -->
+            <div class="timeline-item">
+              <div class="timeline-icon {% if order.status == 'shipped' %}current{% elif order.shipped_at %}completed{% else %}pending{% endif %}">
+                <i class="fas fa-truck"></i>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-title">Shipped</div>
+                <div class="timeline-date">
+                  {% if order.shipped_at %}
+                    {{ order.shipped_at|date:"M d, Y - g:i A" }}
+                  {% else %}
+                    Pending
+                  {% endif %}
+                </div>
+              </div>
+              <div class="timeline-line {% if order.delivered_at %}completed{% endif %}"></div>
+            </div>
+
+            <!-- Delivered -->
+            <div class="timeline-item">
+              <div class="timeline-icon {% if order.status == 'delivered' %}completed{% else %}pending{% endif %}">
+                <i class="fas fa-home"></i>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-title">Delivered</div>
+                <div class="timeline-date">
+                  {% if order.delivered_at %}
+                    {{ order.delivered_at|date:"M d, Y - g:i A" }}
+                  {% else %}
+                    Pending
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <a href="{% url 'accounts:my_orders' %}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Orders
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

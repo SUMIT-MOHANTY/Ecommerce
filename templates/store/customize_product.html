@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow border-0 p-4">
+        <h2 class="mb-3 text-center" style="color: var(--primary-color); font-weight: 700;">Customize Your {{ product.name }}</h2>
+        <div class="text-center mb-3">
+          <img id="productBaseImg" src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded" style="max-height: 200px;">
+        </div>
+        {% if user.is_authenticated %}
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">Submit Customization Request</button>
+        </form>
+        {% else %}
+        <div class="alert alert-warning text-center">You must be logged in to submit a customization request.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

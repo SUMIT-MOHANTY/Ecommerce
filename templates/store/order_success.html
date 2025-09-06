@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .success-icon { font-size: 56px; color: var(--success-color); }
+  .card { box-shadow: var(--shadow-md); border-radius: 12px; }
+  .card:hover { box-shadow: var(--shadow-lg); }
+  .text-muted { color: var(--text-secondary) !important; }
+  @media (max-width: 576px) {
+    .btn { width: 100%; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="text-center">
+    <div class="mb-3 success-icon"><i class="fas fa-check-circle"></i></div>
+    <h2 class="fw-bold mb-2">Order Placed Successfully</h2>
+    <p class="text-muted">Thank you! Your order has been created.</p>
+  </div>
+
+  <div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h5 class="mb-3">Order Details</h5>
+          <div class="row mb-3">
+            <div class="col-md-6"><strong>Order #</strong>: {{ order.id }}</div>
+            <div class="col-md-6"><strong>Placed On</strong>: {{ order.created_at|date:"Y-m-d H:i" }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6"><strong>Customer</strong>: {{ order.full_name }}</div>
+            <div class="col-md-6"><strong>Phone</strong>: {{ order.phone }}</div>
+          </div>
+          <div class="mb-3">
+            <strong>Shipping Address</strong><br>
+            {{ order.address_line1 }}{% if order.address_line2 %}, {{ order.address_line2 }}{% endif %}, {{ order.city }}, {{ order.state }} - {{ order.postal_code }}
+          </div>
+          <div class="mb-3">
+            <strong>Payment Method</strong>: {{ order.get_payment_method_display }}
+            {% if order.payment_method == 'upi' and order.upi_provider %}
+              <br><small class="text-muted">UPI Provider: 
+                {% if order.upi_provider == 'phonepe' %}PhonePe
+                {% elif order.upi_provider == 'paytm' %}Paytm
+                {% elif order.upi_provider == 'googlepay' %}Google Pay
+                {% else %}{{ order.upi_provider|title }}
+                {% endif %}
+              </small>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <strong>Estimated Delivery</strong>: {{ order.delivery_date|date:"Y-m-d" }} (in ~5 days)
+          </div>
+          <hr>
+          <h6 class="mb-3">Items</h6>
+          {% for it in order.items.all %}
+            <div class="d-flex justify-content-between small mb-2">
+              <span>{{ it.product_name }} x {{ it.quantity }}</span>
+              <span>₹{{ it.line_total }}</span>
+            </div>
+          {% endfor %}
+          <hr>
+          <div class="d-flex justify-content-between">
+            <span class="fw-bold">Total</span>
+            <span class="fw-bold">₹{{ order.total_amount }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-4">
+        <a href="{% url 'store:home' %}" class="btn btn-primary"><i class="fas fa-home me-2"></i>Back to Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

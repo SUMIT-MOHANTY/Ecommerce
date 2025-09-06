@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .wallet-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  .wallet-title { 
+    color: var(--primary-color); 
+    font-weight: 700;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+
+  .wallet-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 2px;
+  }
+
+  .balance-card {
+    background: linear-gradient(135deg, var(--success-color), #059669);
+    border-radius: 15px;
+    padding: 2rem;
+    color: white;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+    margin-bottom: 2rem;
+  }
+
+  .balance-amount {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 1rem 0;
+  }
+
+  .balance-label {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+
+  .wallet-card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+    border-radius: 12px; 
+    border: none;
+    background: white;
+    transition: all 0.3s ease;
+  }
+  
+  .wallet-card:hover { 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12); 
+    transform: translateY(-1px);
+  }
+  
+  .wallet-card h5 { 
+    color: var(--text-primary); 
+    font-weight: 600; 
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .transaction-item:last-child {
+    border-bottom: none;
+  }
+
+  .transaction-info {
+    flex-grow: 1;
+  }
+
+  .transaction-description {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .transaction-date {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  .transaction-amount {
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .transaction-credit {
+    color: var(--success-color);
+  }
+
+  .transaction-debit {
+    color: var(--danger-color);
+  }
+
+  .transaction-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 1rem;
+  }
+
+  .badge-credit {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+  }
+
+  .badge-debit {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-secondary);
+  }
+
+  .empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  @media (max-width: 768px) {
+    .wallet-container {
+      padding: 1rem 0;
+    }
+
+    .wallet-title {
+      font-size: 1.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .balance-amount {
+      font-size: 2.5rem;
+    }
+
+    .balance-card {
+      padding: 1.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wallet-container">
+  <div class="container">
+    <h2 class="wallet-title">My Wallet</h2>
+
+    <!-- Balance Card -->
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="balance-card">
+          <div class="balance-label">Current Balance</div>
+          <div class="balance-amount">${{ wallet.balance }}</div>
+          <div class="balance-label">Available for spending</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="row">
+      <div class="col-12">
+        <div class="wallet-card p-4">
+          <h5><i class="fas fa-history me-2"></i>Recent Transactions</h5>
+          
+          {% if transactions %}
+            {% for transaction in transactions %}
+              <div class="transaction-item">
+                <div class="transaction-info">
+                  <div class="transaction-description">{{ transaction.description }}</div>
+                  <div class="transaction-date">{{ transaction.created_at|date:"M d, Y - g:i A" }}</div>
+                </div>
+                <div class="d-flex align-items-center">
+                  <div class="transaction-amount transaction-{{ transaction.transaction_type }}">
+                    {% if transaction.transaction_type == 'credit' %}+{% else %}-{% endif %}${{ transaction.amount }}
+                  </div>
+                  <span class="transaction-badge badge-{{ transaction.transaction_type }}">
+                    {% if transaction.transaction_type == 'credit' %}Credit{% else %}Debit{% endif %}
+                  </span>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-state">
+              <i class="fas fa-receipt"></i>
+              <h6>No transactions yet</h6>
+              <p>Your wallet transaction history will appear here</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="row mt-4">
+      <div class="col-12 text-center">
+        <a href="{% url 'store:checkout' %}" class="btn btn-primary btn-lg">
+          <i class="fas fa-shopping-cart me-2"></i>Continue Shopping
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

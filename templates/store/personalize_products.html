@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+
+{% block title %}Personalize Your Products - Customize Clothing{% endblock %}
+
+{% block content %}
+<style>
+  .personalize-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+  
+  .personalize-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  
+  .personalize-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  .personalize-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 2px;
+  }
+  
+  .personalize-subtitle {
+    font-size: 1rem;
+    color: #64748b;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  
+  .category-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    color: inherit;
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .category-card:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  .category-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    transition: transform 0.3s ease;
+  }
+
+  .category-card:hover .category-image {
+    transform: scale(1.02);
+  }
+  
+  .category-info {
+    padding: 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .category-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+  
+  .category-stats {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  .price-range {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+  }
+  
+  .browse-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    width: 100%;
+    transition: all 0.3s ease;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .browse-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    color: white;
+  }
+
+  .no-products-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 40vh;
+  }
+
+  .no-products-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    max-width: 500px;
+  }
+
+  .no-products-icon {
+    font-size: 3rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+  }
+
+  .no-products-title {
+    color: #2d3748;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .no-products-text {
+    color: #6b7280;
+    line-height: 1.6;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .personalize-container {
+      padding: 1.5rem 0;
+    }
+
+    .personalize-title {
+      font-size: 1.875rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .personalize-subtitle {
+      font-size: 0.9rem;
+    }
+
+    .category-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .category-card {
+      height: 280px;
+    }
+
+    .category-image {
+      height: 120px;
+    }
+
+    .category-info {
+      padding: 1rem;
+    }
+
+    .category-name {
+      font-size: 1.1rem;
+    }
+
+    .category-stats {
+      font-size: 0.8rem;
+    }
+
+    .browse-btn {
+      padding: 0.625rem 1rem;
+      font-size: 0.8rem;
+    }
+
+    .no-products-card {
+      padding: 2rem 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .category-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .category-card {
+      height: 260px;
+    }
+  }
+</style>
+
+<div class="personalize-container">
+  <div class="container">
+    <div class="personalize-header">
+      <h1 class="personalize-title">Personalize Your Products</h1>
+      <p class="personalize-subtitle">
+        Choose a category and browse our customizable products. Upload your custom design and we'll create a personalized product just for you.
+      </p>
+    </div>
+    
+    {% if category_cards %}
+    <div class="category-grid">
+      {% for category in category_cards %}
+      <a href="{% url 'store:personalize_category_products' category.name %}" class="category-card">
+        <img src="{{ category.image }}" alt="{{ category.name }}" class="category-image">
+        <div class="category-info">
+          <h3 class="category-name">{{ category.name }}</h3>
+          <div class="category-stats">
+            <i class="fas fa-tshirt"></i>
+            <span>{{ category.product_count }} customizable product{{ category.product_count|pluralize }}</span>
+          </div>
+          <div class="price-range">
+            ${{ category.min_price }} - ${{ category.max_price }}
+          </div>
+          <button class="browse-btn">
+            <i class="fas fa-eye"></i>
+            <span>Browse Products</span>
+          </button>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-products-container">
+      <div class="no-products-card">
+        <i class="fas fa-palette no-products-icon"></i>
+        <h3 class="no-products-title">No Customizable Products Available</h3>
+        <p class="no-products-text">
+          No products are currently available for personalization. Please check back later or contact the administrator.
+        </p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

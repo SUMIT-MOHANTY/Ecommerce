@@ -1,340 +1,909 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Customize Clothing - Your Online Store{% endblock %}
 
 {% block content %}
 <style>
-  body {
-    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%) !important;
+  /* Modern Clean UI Design */
+  .main-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 0;
   }
-  .category-circle {
-    width: 90px; height: 90px;
-    background: linear-gradient(135deg, #fff 60%, #e0e7ff 100%);
-    border: 2.5px solid var(--primary-color);
-    border-radius: 50%;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-weight: 700; color: var(--primary-color);
-    box-shadow: 0 4px 16px rgba(99,102,241,0.10);
-    margin-bottom: 0.5rem;
-    transition: box-shadow 0.2s, transform 0.2s, background 0.2s;
-    cursor: pointer;
-    font-size: 1.1rem;
-    text-align: center;
+  
+  /* Hero Section */
+  .hero-section {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2.5rem;
     position: relative;
-    padding: 0.2rem;
+    overflow: hidden;
   }
-  .category-circle i, .category-circle svg {
-    font-size: 2rem;
-    margin-bottom: 0.2rem;
-    color: var(--primary-color);
-    display: block;
+  
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="white" opacity="0.1"/><circle cx="80" cy="80" r="2" fill="white" opacity="0.1"/><circle cx="40" cy="60" r="1" fill="white" opacity="0.1"/></svg>');
   }
-  .category-circle.god-goddess {
-    font-size: 1rem;
-    padding-top: 0.3rem;
-    padding-bottom: 0.3rem;
-    line-height: 1.1;
-  }
-  .category-circle:hover {
-    box-shadow: 0 8px 32px rgba(99,102,241,0.18);
-    transform: translateY(-4px) scale(1.07);
-    background: #eef2ff;
-  }
-  .category-box {
-    background: linear-gradient(135deg, #f8fafc 60%, #e0e7ff 100%);
-    border-radius: 1.2rem;
-    box-shadow: 0 4px 24px rgba(99,102,241,0.10);
-    font-weight: 600;
-    color: var(--dark-color);
+  
+  .hero-content {
+    position: relative;
+    z-index: 2;
     text-align: center;
-    padding: 2.2rem 1rem 1.2rem 1rem;
+  }
+  
+  .hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
     margin-bottom: 1.5rem;
-    transition: box-shadow 0.2s, transform 0.2s, border 0.2s;
-    border: 2px solid #e0e7ff;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .hero-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.875rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+  
+  .hero-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  }
+  
+  /* Section Styling */
+  .section {
+    padding: 2.5rem 0;
+  }
+  
+  .section-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    color: #2d3748;
+    position: relative;
+  }
+  
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 2px;
+  }
+  
+  /* Category Circles - More Compact */
+  .category-circles {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+  
+  .category-circle-item {
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  
+  .category-circle {
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color)) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto 0.75rem !important;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.25) !important;
+    transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 120px;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 10 !important;
   }
-  .category-box .cat-icon {
-    font-size: 1.7rem;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
-    display: block;
-    transition: color 0.2s;
+  
+  .category-circle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
+  
+  .category-circle:hover::before {
+    opacity: 1;
+  }
+  
+  .category-circle:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.35);
+  }
+  
+  .category-circle img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .category-circle-text {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.875rem;
+  }
+  
+  /* Compact Category Boxes */
+  .category-boxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+  }
+  
+  .category-box {
+    background: white !important;
+    border-radius: 12px !important;
+    padding: 1.25rem !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+    transition: all 0.3s ease;
+    text-align: center !important;
+    position: relative;
+    overflow: hidden;
+    min-height: 100px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 10 !important;
+  }
+  
+  .category-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .category-box:hover::before {
+    opacity: 1;
+  }
+  
   .category-box:hover {
-    box-shadow: 0 8px 32px rgba(99,102,241,0.18);
-    transform: translateY(-4px) scale(1.03);
-    border: 2px solid var(--primary-color);
-    background: linear-gradient(135deg, #e0e7ff 60%, #fff 100%);
-    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    color: white;
   }
-  .category-box:hover .cat-icon {
-    color: #4f46e5;
+  
+  .category-box-content {
+    position: relative;
+    z-index: 2;
+    transition: color 0.3s ease;
   }
-  .fandom-scroll {
-    overflow-x: auto;
+  
+  .category-box-icon {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  
+  .category-box-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  /* Compact Superhero Section */
+  .superhero-section {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem 0;
+    margin: 2.5rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  
+  .superhero-scroll {
     display: flex;
-    gap: 2rem;
-    padding: 1rem 0 2rem 0;
+    overflow-x: auto;
+    gap: 1.5rem;
+    padding: 1rem 1.5rem;
     scrollbar-width: thin;
-    scrollbar-color: var(--primary-color) #e0e7ff;
+    scrollbar-color: #667eea #e2e8f0;
   }
-  .fandom-scroll::-webkit-scrollbar {
+  
+  .superhero-scroll::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  .superhero-scroll::-webkit-scrollbar-track {
+    background: #e2e8f0;
+    border-radius: 3px;
+  }
+  
+  .superhero-scroll::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+  }
+  
+  .superhero-item {
+    flex: 0 0 auto;
+    text-align: center;
+    width: 100px;
+  }
+  
+  .superhero-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+    box-shadow: 0 3px 12px rgba(102, 126, 234, 0.25);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .superhero-icon:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+  }
+  
+  .superhero-icon img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+  
+  .superhero-name {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Compact Product Cards - Horizontal Scrolling */
+  .product-grid {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1rem 0;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) #e2e8f0;
+  }
+  
+  /* Custom scrollbar for horizontal product grid */
+  .product-grid::-webkit-scrollbar {
     height: 8px;
   }
-  .fandom-scroll::-webkit-scrollbar-thumb {
+  
+  .product-grid::-webkit-scrollbar-track {
+    background: #e2e8f0;
+    border-radius: 4px;
+  }
+  
+  .product-grid::-webkit-scrollbar-thumb {
     background: var(--primary-color);
     border-radius: 4px;
   }
-  .fandom-icon {
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #e0e7ff 0%, #fff 100%);
-    box-shadow: 0 4px 16px rgba(99,102,241,0.12);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 0.5rem auto;
-    border: 2.5px solid #6366f1;
-    transition: box-shadow 0.2s, transform 0.2s, background 0.2s;
-    cursor: pointer;
+  
+  .product-grid::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+  }
+  
+  .product-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    height: 280px;
+    width: 220px;
+    flex: 0 0 220px;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
   }
-  .fandom-icon img, .fandom-icon svg {
-    width: 56px; height: 56px;
-    object-fit: contain;
-    display: block;
+  
+  .product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    text-decoration: none;
+    color: inherit;
   }
-  .fandom-icon:hover {
-    box-shadow: 0 8px 32px rgba(99,102,241,0.18);
-    transform: scale(1.10);
-    background: #fff;
+  
+  .product-image {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
   }
-  .fandom-label {
-    font-weight: 700;
-    color: var(--primary-color);
-    text-align: center;
-    font-size: 1.05rem;
+  
+  .product-card:hover .product-image {
+    transform: scale(1.02);
+  }
+  
+  .product-info {
+    padding: 0.875rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .product-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #2d3748;
+    line-height: 1.3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  
+  .product-category {
+    color: #718096;
+    font-size: 0.7rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  .product-card {
-    border: none;
-    border-radius: 1rem;
-    box-shadow: 0 2px 8px rgba(99,102,241,0.10);
-    transition: box-shadow 0.2s, transform 0.2s;
-    background: #fff;
+  
+  .product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
   }
-  .product-card:hover {
-    box-shadow: 0 8px 32px rgba(99,102,241,0.18);
-    transform: translateY(-4px) scale(1.03);
-  }
-  .product-img {
-    height: 180px;
-    object-fit: cover;
-    border-radius: 1rem 1rem 0 0;
-  }
-  .badge-sale {
-    background: var(--danger-color);
-    color: #fff;
-    font-size: 0.8rem;
-    position: absolute;
-    top: 12px; left: 12px;
-    border-radius: 0.5rem;
-    padding: 0.3em 0.7em;
-  }
-  .trust-row i {
-    font-size: 2rem;
+  
+  .product-price {
+    font-size: 1rem;
+    font-weight: 700;
     color: var(--primary-color);
-    margin-bottom: 0.5rem;
   }
-  .newsletter-box {
-    background: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 2px 8px rgba(99,102,241,0.10);
-    padding: 2rem;
-    margin-top: 2rem;
-    text-align: center;
+  
+  .add-to-cart-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color)) !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 10 !important;
+    position: relative !important;
+  }
+  
+  .add-to-cart-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.25rem;
+    }
+    
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+    
+    .section-title {
+      font-size: 1.875rem;
+    }
+    
+    .category-circles {
+      gap: 1rem;
+    }
+    
+    .category-circle {
+      width: 70px !important;
+      height: 70px !important;
+    }
+    
+    .category-circle img {
+      width: 40px;
+      height: 40px;
+    }
+    
+    .category-boxes {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .product-grid {
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+    }
+    
+    .product-card {
+      width: 180px;
+      flex: 0 0 180px;
+      height: 260px;
+    }
+    
+    .product-image {
+      height: 120px;
+    }
+    
+    .product-info {
+      padding: 0.75rem;
+    }
+    
+    .product-title {
+      font-size: 0.8rem;
+    }
+    
+    .add-to-cart-btn {
+      width: 28px !important;
+      height: 28px !important;
+    }
+    
+    .add-to-cart-btn i {
+      font-size: 0.75rem !important;
+    }
+    
+    .superhero-scroll {
+      padding: 0.75rem 1rem;
+      gap: 1rem;
+    }
+    
+    .superhero-item {
+      width: 80px;
+    }
+    
+    .superhero-icon {
+      width: 60px;
+      height: 60px;
+    }
+    
+    .superhero-icon img {
+      width: 30px;
+      height: 30px;
+    }
+    
+    .superhero-name {
+      font-size: 0.7rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .product-card {
+      width: 160px;
+      flex: 0 0 160px;
+      height: 240px;
+    }
   }
 </style>
 
-<div class="container py-5">
-  <!-- Hero Banner -->
-  <div class="row mb-5 align-items-center" style="background: linear-gradient(90deg, #6366f1 0%, #a5b4fc 100%); border-radius: 1.5rem; box-shadow: 0 4px 24px rgba(99,102,241,0.10);">
-    <div class="col-md-7 p-5">
-      <h1 class="display-5 fw-bold text-white mb-3">Welcome to Customize Clothing</h1>
-      <p class="lead text-white mb-4">Discover trending styles, exclusive fandoms, and custom apparel. Shop now for the best deals!</p>
-      <a href="#featured" class="btn btn-light btn-lg fw-bold px-4">Shop Now</a>
-    </div>
-    <div class="col-md-5 text-center p-4">
-      <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80" alt="Hero Banner" class="img-fluid rounded shadow" style="max-height: 220px;">
-    </div>
-  </div>
-
-  <!-- Top Circular Icons -->
-  <div class="row justify-content-center mb-4 g-4">
-    <div class="col-6 col-sm-2 d-flex flex-column align-items-center">
-      <a href="{% url 'store:plain_shirt' %}" class="text-decoration-none">
-        <div class="category-circle"><i class="fas fa-tshirt"></i>Plain<br>Shirt</div>
-      </a>
-    </div>
-    <div class="col-6 col-sm-2 d-flex flex-column align-items-center">
-      <a href="{% url 'store:cap' %}" class="text-decoration-none">
-        <div class="category-circle"><i class="fas fa-hat-cowboy"></i>Cap</div>
-      </a>
-    </div>
-    <div class="col-6 col-sm-2 d-flex flex-column align-items-center">
-      <a href="{% url 'store:bottle' %}" class="text-decoration-none">
-        <div class="category-circle"><i class="fas fa-wine-bottle"></i>Bottle</div>
-      </a>
-    </div>
-    <div class="col-6 col-sm-2 d-flex flex-column align-items-center">
-      <a href="{% url 'store:mug' %}" class="text-decoration-none">
-        <div class="category-circle"><i class="fas fa-mug-hot"></i>Mug</div>
-      </a>
-    </div>
-    <div class="col-6 col-sm-2 d-flex flex-column align-items-center">
-      <a href="{% url 'store:god_goddess' %}" class="text-decoration-none">
-        <div class="category-circle god-goddess"><i class="fas fa-praying-hands"></i>God<br>& Goddess</div>
-      </a>
-    </div>
-  </div>
-
-  <!-- Box Style Categories -->
-  <div class="row g-4 mb-5">
-    <div class="col-12 col-md-4"><a href="{% url 'store:oversize' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-tshirt"></span>Oversize</div></a></div>
-    <div class="col-12 col-md-4"><a href="{% url 'store:polo_shirt' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-user-tie"></span>Polo Shirt</div></a></div>
-    <div class="col-12 col-md-4"><a href="{% url 'store:regular_thin' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-compress-arrows-alt"></span>Regular Thin</div></a></div>
-    <div class="col-12 col-md-4"><a href="{% url 'store:regular_thick' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-expand-arrows-alt"></span>Regular Thick</div></a></div>
-    <div class="col-12 col-md-4"><a href="{% url 'store:combo' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-layer-group"></span>Combo</div></a></div>
-    <div class="col-12 col-md-4"><a href="{% url 'store:couple' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-heart"></span>Couple</div></a></div>
-    <div class="col-12 col-md-4"><a href="{% url 'store:women_specific' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-female"></span>Women Specific</div></a></div>
-    <div class="col-12 col-md-4"><a href="{% url 'store:personal_customise' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-user-edit"></span>Personal Customise</div></a></div>
-    <div class="col-12 col-md-4"><a href="{% url 'store:sports' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-futbol"></span>Sports<br>(Cricket & Football)</div></a></div>
-    <div class="col-12 col-md-4"><a href="{% url 'store:regional_preference' %}" class="text-decoration-none"><div class="category-box"><span class="cat-icon fas fa-globe-asia"></span>Regional Preference</div></a></div>
-  </div>
-
-  <!-- Fandom/Heroes Section -->
-  <div class="mb-5">
-    <h4 class="fw-bold mb-4 text-center" style="color: var(--primary-color); letter-spacing: 1px;">Fandom & Superhero Edition</h4>
-    <div class="fandom-scroll">
-      <div class="d-flex flex-column align-items-center">
-        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Captain_America%27s_shield.svg" alt="Captain America"></div>
-        <div class="fandom-label">Captain America</div>
-      </div>
-      <div class="d-flex flex-column align-items-center">
-        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Iron_Man_Mask.svg" alt="Iron Man"></div>
-        <div class="fandom-label">Iron Man</div>
-      </div>
-      <div class="d-flex flex-column align-items-center">
-        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/0/0c/Spider-Man_mask.svg" alt="Spider-Man"></div>
-        <div class="fandom-label">Spider-Man</div>
-      </div>
-      <div class="d-flex flex-column align-items-center">
-        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Thor%27s_Hammer.svg" alt="Thor"></div>
-        <div class="fandom-label">Thor</div>
-      </div>
-      <div class="d-flex flex-column align-items-center">
-        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Hulk_Fist.svg" alt="Hulk"></div>
-        <div class="fandom-label">Hulk</div>
-      </div>
-      <div class="d-flex flex-column align-items-center">
-        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Wolverine_Logo.svg" alt="Wolverine"></div>
-        <div class="fandom-label">Wolverine</div>
-      </div>
-      <div class="d-flex flex-column align-items-center">
-        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/5/58/Deadpool_logo.svg" alt="Deadpool"></div>
-        <div class="fandom-label">Deadpool</div>
-      </div>
-      <div class="d-flex flex-column align-items-center">
-        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6c/X-Men_logo.svg" alt="X-Men"></div>
-        <div class="fandom-label">X-Men</div>
-      </div>
-      <div class="d-flex flex-column align-items-center">
-        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/Scarlet_Witch_Icon.svg" alt="Wanda"></div>
-        <div class="fandom-label">Wanda</div>
-      </div>
-      <div class="d-flex flex-column align-items-center">
-        <div class="fandom-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/Game_of_Thrones_logo.svg" alt="Game of Thrones"></div>
-        <div class="fandom-label">Game of Thrones</div>
+<div class="main-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title">Customize Clothing</h1>
+        <p class="hero-subtitle">Discover trending styles, exclusive fandoms, and custom apparel. Shop now for the best deals!</p>
+        <a href="#featured" class="btn hero-btn">Shop Now</a>
       </div>
     </div>
   </div>
 
-  <!-- Featured Products Section -->
-  <div class="mb-5" id="featured">
-    <h3 class="fw-bold mb-4 text-center" style="color: var(--primary-color);">Featured Products</h3>
-    <div class="row g-4 justify-content-center">
-      {% for i in "1234" %}
-      <div class="col-12 col-sm-6 col-lg-3">
-        <a href="{% url 'store:product_detail' i %}" class="text-decoration-none">
-          <div class="card product-card position-relative">
-            <span class="badge badge-sale">Sale</span>
-            <span class="badge bg-success position-absolute top-0 end-0 mt-2 me-2">New</span>
-            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80" class="product-img card-img-top" alt="Product {{ i }}">
-            <div class="card-body">
-              <h5 class="card-title">Product {{ i }}</h5>
-              <div class="mb-2">
-                <span class="text-warning">
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star-half-alt"></i>
-                  <i class="far fa-star"></i>
-                </span>
-                <span class="text-muted small ms-1">4.5 (23)</span>
+  <div class="container">
+    <!-- Category Circles Section -->
+    {% if categories %}
+    <div class="section">
+      <h2 class="section-title">Shop by Category</h2>
+      <div class="category-circles">
+        {% for category in categories %}
+          {% if category.display_style == 'circle' or not category.display_style %}
+          <div class="category-circle-item">
+            <a href="{% url 'store:category_page' category.id %}" class="text-decoration-none">
+              <div class="category-circle">
+                {% if category.image %}
+                  <img src="{{ category.image.url }}" alt="{{ category.name }}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+                {% else %}
+                  <i class="fas fa-tshirt" style="font-size: 2rem; color: white;"></i>
+                {% endif %}
               </div>
-              <p class="card-text text-muted">Trendy and comfortable. Limited stock!</p>
-              <div class="d-flex align-items-center justify-content-between">
-                <span class="fw-bold text-primary">$19.99</span>
-                <button class="btn btn-outline-primary btn-sm" title="Add to Cart" onclick="addToCart({id: {{ i }}, name: 'Product {{ i }}', price: 19.99, image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80'}); event.preventDefault();"><i class="fas fa-cart-plus"></i></button>
+              <div class="category-circle-text">{{ category.name }}</div>
+            </a>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Category Boxes Section -->
+    {% if categories %}
+    <div class="section">
+      <h2 class="section-title">Popular Collections</h2>
+      <div class="category-boxes">
+        {% for category in categories %}
+          {% if category.display_style == 'box' %}
+          <a href="{% url 'store:category_page' category.id %}" class="text-decoration-none">
+            <div class="category-box">
+              <div class="category-box-content">
+                {% if category.image %}
+                  <img src="{{ category.image.url }}" class="category-box-icon" alt="{{ category.name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem;">
+                {% else %}
+                  <i class="fas fa-tshirt category-box-icon" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                {% endif %}
+                <h3 class="category-box-title">{{ category.name }}</h3>
               </div>
+            </div>
+          </a>
+          {% endif %}
+        {% endfor %}
+        
+        <!-- Personalize Section -->
+        <a href="{% url 'store:personalize_products' %}" class="text-decoration-none">
+          <div class="category-box">
+            <div class="category-box-content">
+              <i class="fas fa-palette category-box-icon" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+              <h3 class="category-box-title">Personalize</h3>
+              <p style="font-size: 0.9rem; margin: 0;">Upload your design</p>
             </div>
           </div>
         </a>
       </div>
-      {% endfor %}
     </div>
-  </div>
+    {% endif %}
 
-  <!-- Trust/Info Row -->
-  <div class="row trust-row text-center mb-5 g-4">
-    <div class="col-6 col-md-3">
-      <i class="fas fa-shipping-fast"></i>
-      <div class="fw-bold">Free Shipping</div>
-      <div class="text-muted small">On orders over $50</div>
+    <!-- Superhero Section - Horizontal Scrolling -->
+    <div class="superhero-section">
+      <div class="container">
+        <h2 class="section-title">Fandom & Superhero Edition</h2>
+        <div class="superhero-scroll">
+          {% if fandoms %}
+            {% for fandom in fandoms %}
+              <div class="superhero-item">
+                <a class="text-decoration-none" href="{% url 'store:category_page' fandom.id %}">
+                  <div class="superhero-icon">
+                    {% if fandom.image %}
+                      <img src="{{ fandom.image.url }}" alt="{{ fandom.name }}">
+                    {% else %}
+                      <img src="{% static 'images/superheroes/batman.svg' %}" alt="{{ fandom.name }}">
+                    {% endif %}
+                  </div>
+                  <div class="superhero-name">{{ fandom.name }}</div>
+                </a>
+              </div>
+            {% endfor %}
+          {% else %}
+            <!-- Fallback static items until fandom subcategories are created -->
+            <div class="superhero-item">
+              <div class="superhero-icon">
+                <img src="{% static 'images/superheroes/batman.svg' %}" alt="Batman">
+              </div>
+              <div class="superhero-name">Batman</div>
+            </div>
+            <div class="superhero-item">
+              <div class="superhero-icon">
+                <img src="{% static 'images/superheroes/superman.svg' %}" alt="Superman">
+              </div>
+              <div class="superhero-name">Superman</div>
+            </div>
+            <div class="superhero-item">
+              <div class="superhero-icon">
+                <img src="{% static 'images/superheroes/spiderman.svg' %}" alt="Spider-Man">
+              </div>
+              <div class="superhero-name">Spider-Man</div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
     </div>
-    <div class="col-6 col-md-3">
-      <i class="fas fa-undo"></i>
-      <div class="fw-bold">Easy Returns</div>
-      <div class="text-muted small">30-day return policy</div>
-    </div>
-    <div class="col-6 col-md-3">
-      <i class="fas fa-shield-alt"></i>
-      <div class="fw-bold">Secure Payment</div>
-      <div class="text-muted small">100% secure checkout</div>
-    </div>
-    <div class="col-6 col-md-3">
-      <i class="fas fa-headset"></i>
-      <div class="fw-bold">24/7 Support</div>
-      <div class="text-muted small">We're here to help</div>
-    </div>
-  </div>
 
-  <!-- Newsletter Signup -->
-  <div class="newsletter-box mt-5">
-    <h5 class="fw-bold mb-3" style="color: var(--primary-color);">Get Special Offers & Updates</h5>
-    <form class="row g-2 justify-content-center">
-      <div class="col-12 col-md-6">
-        <input type="email" class="form-control form-control-lg" placeholder="Your email address" required>
+    <!-- Featured Products Section -->
+    {% if featured_products %}
+    <div class="section" id="featured">
+      <h2 class="section-title">Featured Products</h2>
+      <div class="position-relative">
+        <div class="product-grid">
+          {% for product in featured_products %}
+          <a href="{% url 'store:product_detail' product.id %}" class="product-card text-decoration-none">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
+            {% else %}
+              <div class="product-image" style="background: linear-gradient(135deg, #f8fafc, #e2e8f0); display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-image" style="font-size: 3rem; color: #cbd5e0;"></i>
+              </div>
+            {% endif %}
+            <div class="product-info">
+              <h3 class="product-title">{{ product.name }}</h3>
+              <p class="product-category">{{ product.category.name|default:'General' }}</p>
+              {% if product.description %}
+              <div class="product-description" style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5; height: 4.5em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                {{ product.description|truncatewords:30 }}
+              </div>
+              {% endif %}
+              <div class="product-footer">
+                <span class="product-price">${{ product.price }}</span>
+                <button class="add-to-cart-btn" title="Add to Cart" 
+                        data-id="{{ product.id }}" 
+                        data-name="{{ product.name|escapejs }}" 
+                        data-price="{{ product.price }}" 
+                        data-image="{% if product.image %}{{ product.image.url|escapejs }}{% endif %}"
+                        data-description="{{ product.description|escapejs|default:'' }}"
+                        onclick="event.stopPropagation(); event.preventDefault();">
+                  <i class="fas fa-cart-plus"></i>
+                </button>
+              </div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+        
+        <!-- Scroll indicator text -->
+        <div class="text-center mt-3">
+          <small class="text-muted">
+            <i class="fas fa-arrows-alt-h me-1"></i>
+            Scroll horizontally to see more products
+          </small>
+        </div>
       </div>
-      <div class="col-12 col-md-3">
-        <button type="submit" class="btn btn-primary btn-lg w-100">Subscribe</button>
+      
+      {% if has_more_products %}
+      <div class="text-center mt-4">
+        <a href="{% url 'store:all_products' %}" class="btn btn-outline-primary btn-lg">
+          <i class="fas fa-plus me-2"></i>View All Products
+        </a>
       </div>
-    </form>
-    <div class="text-muted small mt-2">No spam. Unsubscribe anytime.</div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Newsletter Section -->
+    <div class="section">
+      <div style="background: white; border-radius: 1.5rem; padding: 3rem 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center;">
+        <h2 style="color: #2d3748; margin-bottom: 1rem;">Stay Updated!</h2>
+        <p style="color: #718096; margin-bottom: 2rem;">Get the latest updates on new arrivals and exclusive offers.</p>
+        <form class="row g-3 align-items-center justify-content-center">
+          <div class="col-12 col-md-6">
+            <input type="email" class="form-control" placeholder="Enter your email" style="border-radius: 50px; padding: 0.75rem 1.5rem;">
+          </div>
+          <div class="col-12 col-md-3">
+            <button type="submit" class="btn btn-primary w-100" style="border-radius: 50px; padding: 0.75rem 1.5rem;">Subscribe</button>
+          </div>
+        </form>
+        <div style="color: #718096; font-size: 0.9rem; margin-top: 1rem;">No spam. Unsubscribe anytime.</div>
+      </div>
+    </div>
   </div>
 </div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Function to show a toast notification
+  function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `position-fixed bottom-0 end-0 m-3 p-3 bg-${type} text-white rounded shadow`;
+    toast.style.zIndex = '1100';
+    toast.style.transition = 'opacity 0.5s ease';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => toast.style.opacity = '1', 10);
+    
+    // Remove after delay
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 500);
+    }, 3000);
+  }
+
+  // Function to get CSRF token
+  function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+           document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+           getCookie('csrftoken');
+  }
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  // Add to cart functionality is handled in base.html via event delegation
+  
+  // Function to update cart badge
+  function updateCartBadge(count) {
+    let badge = document.querySelector('.cart-badge');
+    if (!badge) {
+      // Create badge if it doesn't exist
+      const cartIcon = document.querySelector('.nav-cart');
+      if (cartIcon) {
+        badge = document.createElement('span');
+        badge.className = 'cart-badge';
+        cartIcon.appendChild(badge);
+      }
+    }
+    
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'flex' : 'none';
+    }
+  }
+  
+  // Initialize cart badge on page load by fetching from server
+  function initCartBadge() {
+    fetch('{% url 'store:cart_count' %}')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          updateCartBadge(data.count);
+        } else {
+          console.error('Failed to load cart count:', data.error);
+          updateCartBadge(0);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching cart count:', error);
+        updateCartBadge(0);
+      });
+  }
+  
+  // Initialize cart badge when DOM is loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCartBadge);
+  } else {
+    initCartBadge();
+  }
+  
+  // Make updateCartBadge available globally for other scripts
+  window.updateCartBadge = updateCartBadge;
+});
+</script>
+
+<style>
+/* Cart button animations */
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.add-to-cart-btn {
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.add-to-cart-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.add-to-cart-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.add-to-cart-btn i {
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.add-to-cart-btn:hover i {
+  animation: bounce 0.6s ease;
+}
+
+.add-to-cart-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease-out, height 0.4s ease-out, opacity 0.4s ease-out;
+  opacity: 0;
+}
+
+.add-to-cart-btn:hover::after {
+  width: 200%;
+  height: 200%;
+  opacity: 1;
+}
+
+/* Cart badge styles */
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+</style>
+{% endblock %}
 {% endblock %} 

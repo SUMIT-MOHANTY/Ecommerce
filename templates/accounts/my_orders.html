@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders - Customize Clothing{% endblock %}
+
+{% block content %}
+<style>
+  .orders-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+  
+  .orders-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  
+  .orders-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  
+  .orders-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 2px;
+  }
+  
+  .order-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  }
+  
+  .order-header {
+    background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .order-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  .order-detail {
+    text-align: center;
+  }
+  
+  .order-detail-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .order-detail-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .order-status {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .status-processing {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  
+  .status-shipped {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+  
+  .status-delivered {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  
+  .status-cancelled {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+  
+  .status-pending {
+    background: #e0e7ff;
+    color: #3730a3;
+  }
+  
+  .order-body {
+    padding: 1.5rem;
+  }
+  
+  .order-items {
+    margin-bottom: 1.5rem;
+  }
+  
+  .order-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  
+  .order-item:last-child {
+    border-bottom: none;
+  }
+  
+  .item-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+  
+  .item-details {
+    flex: 1;
+  }
+  
+  .item-name {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.25rem;
+  }
+  
+  .item-quantity {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .item-price {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+  }
+  
+  .order-footer {
+    background: #f9fafb;
+    padding: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .order-total {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #374151;
+  }
+  
+  .order-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .action-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .btn-primary-action {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .btn-primary-action:hover {
+    background: var(--primary-dark);
+    color: white;
+  }
+  
+  .btn-outline-action {
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+  }
+  
+  .btn-outline-action:hover {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .empty-orders {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  }
+  
+  .empty-icon {
+    font-size: 4rem;
+    color: #d1d5db;
+    margin-bottom: 1.5rem;
+  }
+  
+  .empty-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1rem;
+  }
+  
+  .empty-subtitle {
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+  
+  .shop-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    padding: 0.875rem 2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .shop-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+    color: white;
+  }
+  
+  @media (max-width: 768px) {
+    .orders-container {
+      padding: 1rem 0;
+    }
+    
+    .orders-title {
+      font-size: 1.875rem;
+    }
+    
+    .order-summary {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+    
+    .order-footer {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: stretch;
+    }
+    
+    .order-actions {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+<div class="orders-container">
+  <div class="container">
+    <div class="orders-header">
+      <h1 class="orders-title">My Orders</h1>
+      <p class="text-muted">Track and manage your order history</p>
+    </div>
+    
+    {% if orders %}
+      {% for order in orders %}
+      <div class="order-card">
+        <div class="order-header">
+          <div class="order-summary">
+            <div class="order-detail">
+              <div class="order-detail-label">Order ID</div>
+              <div class="order-detail-value">#{{ order.id }}</div>
+            </div>
+            <div class="order-detail">
+              <div class="order-detail-label">Order Date</div>
+              <div class="order-detail-value">{{ order.created_at|date:"M d, Y" }}</div>
+            </div>
+            <div class="order-detail">
+              <div class="order-detail-label">Delivery Date</div>
+              <div class="order-detail-value">{{ order.delivery_date|date:"M d, Y" }}</div>
+            </div>
+            <div class="order-detail">
+              <div class="order-detail-label">Status</div>
+              <div class="order-detail-value">
+                <span class="order-status status-{{ order.status }}">{{ order.get_status_display }}</span>
+                {% if order.tracking_number %}
+                  <br><small class="text-muted">Tracking: {{ order.tracking_number }}</small>
+                {% endif %}
+              </div>
+            </div>
+            <div class="order-detail">
+              <div class="order-detail-label">Payment Method</div>
+              <div class="order-detail-value">
+                {{ order.get_payment_method_display }}
+                {% if order.payment_method == 'upi' and order.upi_provider %}
+                  <br><small>({{ order.upi_provider|title }})</small>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="order-body">
+          <h6 class="mb-3">Order Items</h6>
+          <div class="order-items">
+            {% for item in order.items.all %}
+            <div class="order-item">
+              <div class="item-image">
+                {% if item.product.image %}
+                  <img src="{{ item.product.image.url }}" alt="{{ item.product_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                {% else %}
+                  <i class="fas fa-image text-muted"></i>
+                {% endif %}
+              </div>
+              <div class="item-details">
+                <div class="item-name">{{ item.product_name }}</div>
+                <div class="item-quantity">Quantity: {{ item.quantity }}</div>
+              </div>
+              <div class="item-price">${{ item.line_total }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <div class="order-footer">
+          <div class="order-total">
+            Total: ${{ order.total_amount }}
+          </div>
+          <div class="order-actions">
+            <a href="{% url 'store:track_order' order.id %}" class="action-btn btn-outline-action">Track Order</a>
+            <a href="#" class="action-btn btn-primary-action">Reorder</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-orders">
+        <div class="empty-icon">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+        <h2 class="empty-title">No Orders Yet</h2>
+        <p class="empty-subtitle">You haven't placed any orders yet. Start shopping to see your orders here!</p>
+        <a href="{% url 'store:home' %}" class="shop-btn">
+          <i class="fas fa-shopping-cart me-2"></i>Start Shopping
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

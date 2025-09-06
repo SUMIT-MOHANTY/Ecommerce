@@ -16,12 +16,28 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from store import views as store_views
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+from django.conf import settings
+from django.conf.urls.static import static
+from accounts.views import custom_login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Custom login override
+    path('accounts/login/', custom_login, name='login'),
+    # Other Django auth URLs (logout, password reset, etc.)
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/', include('accounts.urls', namespace='accounts')),
-    path('', store_views.home, name='home'),
-    path('store/', include('store.urls', namespace='store')),
+    # JWT auth endpoints
+    path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('', include('store.urls', namespace='store')),
 ]
+
+# Serve static and media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

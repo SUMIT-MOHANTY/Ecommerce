@@ -1,126 +1,726 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .checkout-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  .checkout-title { 
+    color: var(--primary-color); 
+    font-weight: 700;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+
+  .checkout-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 2px;
+  }
+
+  .checkout-card { 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+    border-radius: 12px; 
+    border: none;
+    background: white;
+    transition: all 0.3s ease;
+  }
+  
+  .checkout-card:hover { 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12); 
+    transform: translateY(-1px);
+  }
+  
+  .checkout-card h5 { 
+    color: var(--text-primary); 
+    font-weight: 600; 
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  
+  .form-label { 
+    color: var(--text-primary); 
+    font-weight: 600; 
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control {
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+  }
+
+  .form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  .form-check-label {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .upi-option {
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1rem 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .upi-option:hover {
+    border-color: var(--primary-color);
+    background: #f8fafc;
+    transform: translateY(-1px);
+  }
+
+  .upi-option.selected {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(20, 184, 166, 0.1));
+  }
+
+  .upi-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+  }
+
+  .upi-name {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .qr-code-img {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  #qrCodeSection {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .payment-method-section {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .btn-place-order {
+    background: linear-gradient(135deg, var(--success-color), #059669);
+    border: none;
+    border-radius: 10px;
+    padding: 0.875rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+
+  .btn-place-order:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    color: white;
+  }
+  
+  .order-summary { 
+    position: sticky; 
+    top: 2rem; 
+    background: white;
+  }
+
+  .order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #f9fafb;
+  }
+
+  .order-item:last-child {
+    border-bottom: none;
+  }
+
+  .order-item-name {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .order-item-price {
+    color: var(--accent-color);
+    font-weight: 600;
+  }
+
+  .order-total {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .total-row:last-child {
+    margin-bottom: 0;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e5e7eb;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+  }
+
+  .alert-danger { 
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
+  }
+
+  .small-note { 
+    color: var(--text-secondary); 
+    font-size: 0.8rem; 
+    text-align: center;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 8px;
+  }
+
+  .text-success { 
+    color: var(--success-color) !important; 
+  }
+
+  .section-badge {
+    font-size: 0.75rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+  }
+
+  .btn-success {
+    background: linear-gradient(135deg, var(--success-color), #059669);
+    border: none;
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-success:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    .checkout-container {
+      padding: 1rem 0;
+    }
+
+    .checkout-title {
+      font-size: 1.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .order-summary {
+      position: static;
+      margin-top: 2rem;
+    }
+
+    .btn-place-order {
+      padding: 1rem;
+      font-size: 1.1rem;
+    }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-  <h2 class="mb-4" style="color: var(--primary-color); font-weight: 700;">Checkout</h2>
-  <div class="row g-4">
-    <div class="col-md-7">
-      <div class="card p-4 shadow-sm mb-4">
-        <h5 class="mb-3">Shipping Information</h5>
-        <form id="checkoutForm">
-          <div class="mb-3">
-            <label class="form-label">Full Name</label>
-            <input type="text" class="form-control" required>
+<div class="checkout-container">
+  <div class="container">
+    <h2 class="checkout-title">Complete Your Order</h2>
+
+    {% if errors %}
+      <div class="alert alert-danger mb-4">
+        <h6 class="mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following issues:</h6>
+        <ul class="mb-0">
+          {% for e in errors %}
+            <li>{{ e }}</li>
+          {% endfor %}
+        </ul>
+        {% if out_of_stock %}
+          <hr>
+          <div>
+            <strong>Out of stock:</strong>
+            <ul class="mb-0">
+              {% for s in out_of_stock %}
+                <li>{{ s }}</li>
+              {% endfor %}
+            </ul>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Address</label>
-            <input type="text" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">City</label>
-            <input type="text" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Postal Code</label>
-            <input type="text" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Country</label>
-            <input type="text" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Payment Method</label>
-            <div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="paymentMethod" id="upiOption" value="UPI" checked>
-                <label class="form-check-label" for="upiOption">UPI</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="paymentMethod" id="codOption" value="COD">
-                <label class="form-check-label" for="codOption">Cash on Delivery (COD)</label>
-              </div>
-            </div>
-          </div>
-          <div class="mb-3" id="upiOptions">
-            <label class="form-label">Select UPI App</label>
-            <div class="d-flex gap-3 flex-wrap align-items-center">
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="upiApp" id="phonepe" value="PhonePe" checked>
-                <label class="form-check-label d-flex align-items-center gap-2" for="phonepe">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/PhonePe_Logo.svg" alt="PhonePe" style="height: 32px;"> PhonePe
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="upiApp" id="gpay" value="Google Pay">
-                <label class="form-check-label d-flex align-items-center gap-2" for="gpay">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/Google_Pay_Logo.svg" alt="Google Pay" style="height: 32px;"> Google Pay
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="upiApp" id="paytm" value="Paytm">
-                <label class="form-check-label d-flex align-items-center gap-2" for="paytm">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Paytm_logo.png" alt="Paytm" style="height: 32px;"> Paytm
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="upiApp" id="bhim" value="BHIM">
-                <label class="form-check-label d-flex align-items-center gap-2" for="bhim">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/BHIM_logo.svg" alt="BHIM" style="height: 32px;"> BHIM
-                </label>
-              </div>
-            </div>
-          </div>
-          <div class="mb-3 text-danger d-none" id="codNote">₹50 extra will be charged for Cash on Delivery.</div>
-        </form>
+        {% endif %}
       </div>
-    </div>
-    <div class="col-md-5">
-      <div class="card p-4 shadow-sm">
-        <h5 class="mb-3">Order Summary</h5>
-        <div class="d-flex justify-content-between mb-2">
-          <span>Subtotal</span>
-          <span id="subtotal">₹3998</span>
+    {% endif %}
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="checkout-card p-4">
+          <h5><i class="fas fa-shipping-fast me-2"></i>Shipping Information</h5>
+          <form id="checkoutForm" method="post" action="{% url 'store:checkout' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Full Name</label>
+              <input type="text" name="full_name" class="form-control" required value="{{ form.full_name|default:'' }}" placeholder="Enter your full name">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Address Line 1</label>
+              <input type="text" name="address_line1" class="form-control" required value="{{ form.address_line1|default:'' }}" placeholder="Street address, building, etc.">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Address Line 2 <span class="text-muted">(optional)</span></label>
+              <input type="text" name="address_line2" class="form-control" value="{{ form.address_line2|default:'' }}" placeholder="Apartment, suite, unit, etc.">
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">City</label>
+                <input type="text" name="city" class="form-control" required value="{{ form.city|default:'' }}" placeholder="City">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">State</label>
+                <input type="text" name="state" class="form-control" required value="{{ form.state|default:'' }}" placeholder="State">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Postal Code</label>
+                <input type="text" name="postal_code" class="form-control" required value="{{ form.postal_code|default:'' }}" placeholder="ZIP/Postal Code">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Phone Number</label>
+                <input type="text" name="phone" class="form-control" required value="{{ form.phone|default:'' }}" placeholder="Phone number">
+              </div>
+            </div>
+            
+            <h6 class="mt-4 mb-3"><i class="fas fa-credit-card me-2"></i>Payment Method</h6>
+            
+            <!-- Wallet Section -->
+            {% if user.is_authenticated and user_wallet %}
+            <div class="payment-method-section mb-3">
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="useWallet" name="use_wallet">
+                <label class="form-check-label" for="useWallet">
+                  <i class="fas fa-wallet me-2"></i>Use Wallet Balance
+                  <span class="text-success ms-2">(Available: ${{ user_wallet.balance }})</span>
+                </label>
+              </div>
+              <div id="walletAmountSection" class="mt-2" style="display: none;">
+                <div class="row align-items-center">
+                  <div class="col-md-8">
+                    <input type="number" name="wallet_amount" id="walletAmount" class="form-control" 
+                           min="0" max="{{ user_wallet.balance }}" step="0.01" 
+                           placeholder="Enter amount to use from wallet">
+                  </div>
+                  <div class="col-md-4">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="useMaxWallet">
+                      Use Max (${{ user_wallet.balance }})
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            <div class="mb-4">
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="payment_method" id="codOption" value="cod" {% if form.payment_method|default:'cod' == 'cod' %}checked{% endif %}>
+                <label class="form-check-label" for="codOption">
+                  <i class="fas fa-money-bill-wave me-2"></i>Cash on Delivery (COD)
+                  <span class="text-warning ms-2"><small>+$30 COD charges</small></span>
+                </label>
+              </div>
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="radio" name="payment_method" id="upiOption" value="upi" {% if form.payment_method == 'upi' %}checked{% endif %}>
+                <label class="form-check-label" for="upiOption">
+                  <i class="fas fa-mobile-alt me-2"></i>UPI Payment
+                </label>
+              </div>
+              
+              <!-- UPI Options -->
+              <div id="upiOptions" class="mb-3" style="display: none;">
+                <div class="row g-2">
+                  {% for upi_method in upi_payment_methods %}
+                  <div class="col-4">
+                    <div class="upi-option" data-upi="{{ upi_method.code }}">
+                      {% if upi_method.logo %}
+                        <img src="{{ upi_method.logo.url }}" alt="{{ upi_method.name }}" class="upi-logo">
+                      {% else %}
+                        <div class="upi-logo d-flex align-items-center justify-content-center" style="background: #f8fafc; border: 1px dashed #d1d5db; width: 40px; height: 40px; margin: 0 auto 0.5rem;">
+                          <i class="fas fa-mobile-alt"></i>
+                        </div>
+                      {% endif %}
+                      <span class="upi-name">{{ upi_method.name }}</span>
+                    </div>
+                  </div>
+                  {% empty %}
+                  <div class="col-12">
+                    <div class="alert alert-info">
+                      <i class="fas fa-info-circle me-2"></i>No UPI payment methods configured. Please contact administrator.
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <!-- QR Code Section -->
+              <div id="qrCodeSection" class="text-center" style="display: none;">
+                <div class="payment-method-section">
+                  <h6 class="mb-3">Scan QR Code to Pay</h6>
+                  <img src="" alt="Payment QR Code" class="qr-code-img" style="width: 150px; height: 150px;">
+                  <p class="mt-2 text-muted small">Scan this QR code with your selected UPI app to complete payment</p>
+                </div>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-place-order">
+              <i class="fas fa-check-circle me-2"></i>Place Order
+            </button>
+          </form>
         </div>
-        <div class="d-flex justify-content-between mb-2">
-          <span>Shipping</span>
-          <span id="shipping">₹50</span>
+      </div>
+      
+      <div class="col-lg-5">
+        <div class="checkout-card p-4 order-summary">
+          <h5><i class="fas fa-receipt me-2"></i>Order Summary</h5>
+          
+          {% if regular_cart_items %}
+            <div class="section-badge">Cart Items</div>
+            {% for item in regular_cart_items %}
+              <div class="order-item">
+                <span class="order-item-name">{{ item.product.name }} × {{ item.quantity }}</span>
+                <span class="order-item-price">${{ item.total_price }}</span>
+              </div>
+            {% endfor %}
+          {% endif %}
+          
+          {% if personalization_items %}
+            <div class="section-badge mt-3">Available for Approval</div>
+            <div class="alert alert-info mt-2" style="font-size: 0.875rem; padding: 0.5rem;">
+              <i class="fas fa-info-circle me-1"></i>
+              These personalized items are ready for approval. Use "Add to Cart" to include them in your order.
+            </div>
+            {% for p in personalization_items %}
+              {% if p.product %}
+                <div class="order-item" style="opacity: 0.7;">
+                  <span class="order-item-name">
+                    {{ p.product.name }} <em>(awaiting approval)</em>
+                    <button class="btn btn-success btn-sm ms-2" onclick="approvePersonalization({{ p.id }})">
+                      <i class="fas fa-plus"></i> Add to Cart
+                    </button>
+                  </span>
+                  <span class="order-item-price">${{ p.product.price }}</span>
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          
+          <div class="order-total">
+            <div class="total-row">
+              <span>Total Items:</span>
+              <span>{{ cart_total.total_items }}</span>
+            </div>
+            <div class="total-row">
+              <span>Subtotal:</span>
+              <span>${{ cart_total.total_price }}</span>
+            </div>
+            <div class="total-row">
+              <span>Shipping:</span>
+              <span class="text-success">Free</span>
+            </div>
+            <div class="total-row" id="codChargeRow" style="display: none;">
+              <span>COD Charges:</span>
+              <span class="text-warning">$30</span>
+            </div>
+            <div class="total-row" id="walletUsedRow" style="display: none;">
+              <span>Wallet Used:</span>
+              <span class="text-info">-$<span id="walletUsedAmount">0.00</span></span>
+            </div>
+            <div class="total-row" id="remainingAmountRow" style="display: none;">
+              <span>Remaining Amount:</span>
+              <span id="remainingAmount">$0.00</span>
+            </div>
+            <div class="total-row">
+              <span>Total:</span>
+              <span id="finalTotal">${{ cart_total.total_price }}</span>
+            </div>
+          </div>
+          
+          <div class="small-note">
+            <i class="fas fa-truck me-1"></i>
+            Estimated delivery in 3-5 business days
+          </div>
         </div>
-        <hr>
-        <div class="d-flex justify-content-between mb-3">
-          <span class="fw-bold">Total</span>
-          <span class="fw-bold" id="total">₹4048</span>
-        </div>
-        <button class="btn btn-success btn-lg w-100"><i class="fas fa-check-circle me-2"></i>Place Order</button>
       </div>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const upiOptions = document.getElementById('upiOptions');
-    const codNote = document.getElementById('codNote');
-    const shipping = document.getElementById('shipping');
-    const total = document.getElementById('total');
-    const subtotal = document.getElementById('subtotal');
-    function updatePaymentUI() {
-      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-      let sub = 3998;
-      if (paymentMethod === 'COD') {
-        upiOptions.classList.add('d-none');
-        codNote.classList.remove('d-none');
-        shipping.textContent = '₹100';
-        total.textContent = '₹' + (sub + 100);
-      } else {
-        upiOptions.classList.remove('d-none');
-        codNote.classList.add('d-none');
-        shipping.textContent = '₹50';
-        total.textContent = '₹' + (sub + 50);
+document.addEventListener('DOMContentLoaded', function() {
+  const codOption = document.getElementById('codOption');
+  const upiOption = document.getElementById('upiOption');
+  const upiOptions = document.getElementById('upiOptions');
+  const qrCodeSection = document.getElementById('qrCodeSection');
+  const codChargeRow = document.getElementById('codChargeRow');
+  const finalTotal = document.getElementById('finalTotal');
+  const useWallet = document.getElementById('useWallet');
+  const walletAmountSection = document.getElementById('walletAmountSection');
+  const walletAmount = document.getElementById('walletAmount');
+  const useMaxWallet = document.getElementById('useMaxWallet');
+  const walletUsedRow = document.getElementById('walletUsedRow');
+  const walletUsedAmount = document.getElementById('walletUsedAmount');
+  const remainingAmountRow = document.getElementById('remainingAmountRow');
+  const remainingAmount = document.getElementById('remainingAmount');
+  
+  const baseTotal = {{ cart_total.total_price }};
+  const codCharge = 30;
+  const maxWalletBalance = {{ user_wallet.balance|default:0 }};
+  
+  let selectedUpiProvider = null;
+  let currentWalletAmount = 0;
+  
+  // Handle payment method changes
+  function updatePaymentMethod() {
+    let totalAmount = baseTotal;
+    
+    // Add COD charge if COD is selected
+    if (codOption && codOption.checked) {
+      totalAmount += codCharge;
+      if (upiOptions) upiOptions.style.display = 'none';
+      if (qrCodeSection) qrCodeSection.style.display = 'none';
+      if (codChargeRow) codChargeRow.style.display = 'flex';
+      selectedUpiProvider = null;
+    } else if (upiOption && upiOption.checked) {
+      if (upiOptions) upiOptions.style.display = 'block';
+      if (codChargeRow) codChargeRow.style.display = 'none';
+      if (selectedUpiProvider && qrCodeSection) {
+        qrCodeSection.style.display = 'block';
       }
     }
-    document.querySelectorAll('input[name="paymentMethod"]').forEach(function(radio) {
-      radio.addEventListener('change', updatePaymentUI);
+    
+    // Apply wallet discount
+    let remainingTotal = totalAmount - currentWalletAmount;
+    
+    // Update display
+    if (currentWalletAmount > 0) {
+      if (walletUsedRow) walletUsedRow.style.display = 'flex';
+      if (walletUsedAmount) walletUsedAmount.textContent = currentWalletAmount.toFixed(2);
+      if (remainingAmountRow) remainingAmountRow.style.display = 'flex';
+      if (remainingAmount) remainingAmount.textContent = '$' + Math.max(0, remainingTotal).toFixed(2);
+    } else {
+      if (walletUsedRow) walletUsedRow.style.display = 'none';
+      if (remainingAmountRow) remainingAmountRow.style.display = 'none';
+    }
+    
+    if (finalTotal) finalTotal.textContent = '$' + totalAmount.toFixed(2);
+  }
+  
+  // Initial setup
+  updatePaymentMethod();
+  
+  // Event listeners for payment methods
+  if (codOption) codOption.addEventListener('change', updatePaymentMethod);
+  if (upiOption) upiOption.addEventListener('change', updatePaymentMethod);
+  
+  // Wallet functionality
+  if (useWallet) {
+    useWallet.addEventListener('change', function() {
+      if (this.checked) {
+        if (walletAmountSection) walletAmountSection.style.display = 'block';
+      } else {
+        if (walletAmountSection) walletAmountSection.style.display = 'none';
+        currentWalletAmount = 0;
+        if (walletAmount) walletAmount.value = '';
+        updatePaymentMethod();
+      }
     });
-    updatePaymentUI();
+  }
+  
+  if (walletAmount) {
+    walletAmount.addEventListener('input', function() {
+      let amount = parseFloat(this.value) || 0;
+      
+      // Validate wallet amount
+      if (amount > maxWalletBalance) {
+        amount = maxWalletBalance;
+        this.value = amount;
+      }
+      
+      let totalWithCharges = baseTotal + (codOption && codOption.checked ? codCharge : 0);
+      if (amount > totalWithCharges) {
+        amount = totalWithCharges;
+        this.value = amount;
+      }
+      
+      currentWalletAmount = amount;
+      updatePaymentMethod();
+    });
+  }
+  
+  if (useMaxWallet) {
+    useMaxWallet.addEventListener('click', function() {
+      if (walletAmount) {
+        let totalWithCharges = baseTotal + (codOption && codOption.checked ? codCharge : 0);
+        let maxAmount = Math.min(maxWalletBalance, totalWithCharges);
+        walletAmount.value = maxAmount;
+        currentWalletAmount = maxAmount;
+        updatePaymentMethod();
+      }
+    });
+  }
+  
+  // Handle UPI provider selection
+  const upiProviders = document.querySelectorAll('.upi-option');
+  upiProviders.forEach(provider => {
+    provider.addEventListener('click', function() {
+      // Remove selected class from all providers
+      upiProviders.forEach(p => p.classList.remove('selected'));
+      
+      // Add selected class to clicked provider
+      this.classList.add('selected');
+      
+      // Store selected provider
+      selectedUpiProvider = this.dataset.upi;
+      
+      // Show QR code section
+      if (qrCodeSection) qrCodeSection.style.display = 'block';
+      
+      // Update QR code based on selected provider
+      updateQRCode(selectedUpiProvider);
+    });
   });
+  
+  // Function to approve personalization and add to cart
+  function approvePersonalization(requestId) {
+    fetch('{% url "store:approve_personalization" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      body: JSON.stringify({
+        'request_id': requestId
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Show success message
+        alert(data.message);
+        // Reload the page to update the order summary
+        window.location.reload();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while adding item to cart.');
+    });
+  }
+  
+  function updateQRCode(provider) {
+    const qrImg = document.querySelector('.qr-code-img');
+    if (!qrImg) return;
+    
+    // Find the UPI method from the backend data
+    const upiMethods = {
+      {% for upi_method in upi_payment_methods %}
+      '{{ upi_method.code }}': {
+        name: '{{ upi_method.name }}',
+        upi_id: '{{ upi_method.upi_id }}',
+        qr_code: {% if upi_method.qr_code %}'{{ upi_method.qr_code.url }}'{% else %}''{% endif %}
+      },
+      {% endfor %}
+    };
+    
+    const selectedMethod = upiMethods[provider];
+    if (!selectedMethod) return;
+    
+    // Use admin-uploaded QR code if available, otherwise generate dynamic QR
+    if (selectedMethod.qr_code) {
+      qrImg.src = selectedMethod.qr_code;
+    } else {
+      // Generate dynamic QR code with UPI URL
+      const amount = baseTotal - currentWalletAmount;
+      const upiUrl = `upi://pay?pa=${selectedMethod.upi_id}&pn=CustomizeClothing&am=${amount}&cu=INR`;
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiUrl)}`;
+    }
+  }
+  
+  // Form submission handling
+  const checkoutForm = document.getElementById('checkoutForm');
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', function(e) {
+      if (upiOption && upiOption.checked && !selectedUpiProvider) {
+        e.preventDefault();
+        alert('Please select a UPI payment method');
+        return false;
+      }
+      
+      // Add selected UPI provider to form data if UPI is selected
+      if (upiOption && upiOption.checked && selectedUpiProvider) {
+        const upiInput = document.createElement('input');
+        upiInput.type = 'hidden';
+        upiInput.name = 'upi_provider';
+        upiInput.value = selectedUpiProvider;
+        this.appendChild(upiInput);
+      }
+    });
+  }
+});
 </script>
-{% endblock %} 
+{% endblock %}

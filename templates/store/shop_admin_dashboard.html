@@ -1,0 +1,1370 @@
+{% extends "shop_admin_base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <style>
+    :root {
+      --primary-color: #6366f1;
+      --primary-hover: #5b5bf6;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --info-color: #3b82f6;
+      --dark-color: #1f2937;
+      --light-bg: #f8fafc;
+      --border-color: #e5e7eb;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      background-color: var(--light-bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .dashboard-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+      color: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .dashboard-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .section-card {
+      background: white;
+      border: none;
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 2rem;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform, box-shadow;
+    }
+
+    .section-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-3px);
+    }
+
+    .section-header {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .section-content {
+      padding: 2rem;
+    }
+
+    .btn-modern {
+      border-radius: 10px;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      box-shadow: var(--shadow-sm);
+      will-change: transform, box-shadow;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-modern::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-modern:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-modern:hover::before {
+      left: 100%;
+    }
+
+    .btn-modern:active {
+      transform: translateY(0) scale(0.98);
+      transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-primary-modern {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+      color: white;
+    }
+
+    .btn-primary-modern:hover {
+      background: linear-gradient(135deg, var(--primary-hover) 0%, #4f46e5 100%);
+    }
+
+    .product-card, .category-card {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 100%;
+      box-shadow: var(--shadow-sm);
+      will-change: transform, box-shadow, border-color;
+    }
+
+    .product-card:hover, .category-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: var(--shadow-xl);
+      border-color: var(--primary-color);
+    }
+
+    .card-image-container {
+      position: relative;
+      height: 180px;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .card-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+    }
+
+    .product-card:hover .card-image,
+    .category-card:hover .card-image {
+      transform: scale(1.08) rotate(1deg);
+    }
+
+    .card-body-modern {
+      padding: 1.5rem;
+    }
+
+    .card-title-modern {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .card-category {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .card-price {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .btn-card {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      border: 1px solid;
+    }
+
+    .btn-edit {
+      background: white;
+      color: var(--text-secondary);
+      border-color: var(--border-color);
+    }
+
+    .btn-edit:hover {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .btn-delete {
+      background: white;
+      color: var(--danger-color);
+      border-color: var(--danger-color);
+    }
+
+    .btn-delete:hover {
+      background: var(--danger-color);
+      color: white;
+    }
+
+    .table-modern {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .table-modern thead th {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+      color: white;
+      font-weight: 600;
+      padding: 1rem 1.5rem;
+      border: none;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .table-modern tbody td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+
+    .table-modern tbody tr {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: background-color, transform;
+    }
+
+    .table-modern tbody tr:hover {
+      background-color: #f8fafc;
+      transform: scale(1.01);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .badge-modern {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-warning-modern {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      color: #92400e;
+    }
+
+    .badge-info-modern {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      color: #1e40af;
+    }
+
+    .badge-success-modern {
+      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+      color: #166534;
+    }
+
+    .badge-danger-modern {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      color: #dc2626;
+    }
+
+    .img-thumb-modern {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow-sm);
+      will-change: transform, box-shadow;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .img-thumb-modern::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(99, 102, 241, 0.1);
+      opacity: 0;
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .img-thumb-modern:hover {
+      transform: scale(1.15) rotate(3deg);
+      box-shadow: var(--shadow-lg);
+      z-index: 10;
+    }
+
+    .img-thumb-modern:hover::before {
+      opacity: 1;
+    }
+
+    .search-container {
+      position: relative;
+      max-width: 400px;
+    }
+
+    .search-input-modern {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      width: 100%;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 0.875rem;
+      will-change: border-color, box-shadow, transform;
+    }
+
+    .search-input-modern:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+      outline: none;
+      transform: scale(1.02);
+    }
+
+    .search-input-modern:hover {
+      border-color: var(--primary-hover);
+      transform: scale(1.01);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+    }
+
+    .legend-modern {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .modal-modern .modal-content {
+      border: none;
+      border-radius: 16px;
+      box-shadow: var(--shadow-xl);
+    }
+
+    .modal-modern .modal-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+      color: white;
+      border-radius: 16px 16px 0 0;
+      padding: 1.5rem 2rem;
+    }
+
+    .modal-modern .modal-title {
+      font-weight: 700;
+    }
+
+    .modal-modern .modal-body {
+      padding: 2rem;
+    }
+
+    .modal-modern .modal-footer {
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .form-control-modern {
+      border-radius: 8px;
+      border: 2px solid var(--border-color);
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control-modern:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .textarea-modern {
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      padding: 0.75rem;
+      resize: vertical;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .textarea-modern:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      outline: none;
+    }
+
+    .action-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .action-btn-success {
+      background: var(--success-color);
+      color: white;
+    }
+
+    .action-btn-success:hover {
+      background: #059669;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .action-btn-danger {
+      background: white;
+      color: var(--danger-color);
+      border: 1px solid var(--danger-color);
+    }
+
+    .action-btn-danger:hover {
+      background: var(--danger-color);
+      color: white;
+    }
+
+    .action-btn-disabled {
+      background: #e5e7eb;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .grid-responsive {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-header {
+        padding: 1.5rem;
+      }
+      
+      .dashboard-title {
+        font-size: 2rem;
+      }
+      
+      .section-content {
+        padding: 1rem;
+      }
+      
+      .legend-modern {
+        justify-content: flex-start;
+      }
+      
+      .search-container {
+        max-width: 100%;
+        margin-bottom: 1rem;
+      }
+    }
+
+    .image-modal {
+      backdrop-filter: blur(8px);
+    }
+
+    .image-modal-content {
+      background: white;
+      border-radius: 16px;
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+    }
+
+    .approve-modal {
+      backdrop-filter: blur(8px);
+    }
+
+    .approve-modal-content {
+      background: white;
+      border-radius: 16px;
+      box-shadow: var(--shadow-xl);
+    }
+
+    .loading-state {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .fade-in {
+      animation: smoothFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes smoothFadeIn {
+      from { 
+        opacity: 0; 
+        transform: translateY(20px) scale(0.95); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%) scale(0.9);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%) scale(0.9);
+        opacity: 0;
+      }
+    }
+
+    /* Smooth scrolling for the entire page */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Enhance performance with GPU acceleration */
+    .section-card,
+    .product-card,
+    .category-card,
+    .btn-modern,
+    .img-thumb-modern,
+    .search-input-modern,
+    .table-modern tbody tr {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+  </style>
+
+  <!-- Dashboard Header -->
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">Shop Admin Dashboard</h1>
+    <p class="mb-0 opacity-90">Manage your products, categories, and personalization requests</p>
+  </div>
+
+<!-- Final Upload Modal -->
+<div class="modal fade modal-modern" id="finalUploadModal" tabindex="-1" aria-labelledby="finalUploadLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="finalUploadForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="finalUploadLabel">
+            <i class="fas fa-upload me-2"></i>Upload Final Design
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="request_id" id="finalUploadRequestId" />
+          <div class="mb-3">
+            <label class="form-label">Final Image</label>
+            <input class="form-control" type="file" name="final_image" id="finalImageInput" accept="image/*" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Admin Notes (optional)</label>
+            <textarea class="form-control" name="notes" id="finalNotesInput" rows="3" placeholder="Any details for the user..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary-modern btn-modern">
+            <i class="fas fa-check me-2"></i>Approve & Upload
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+  <!-- Products Section -->
+  <div class="section-card">
+    <div class="section-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="section-title">Products</h2>
+        <button class="btn btn-primary-modern btn-modern" data-bs-toggle="modal" data-bs-target="#addProductModal">
+          <i class="fas fa-plus me-2"></i>Add Product
+        </button>
+      </div>
+    </div>
+    <div class="section-content">
+      <div class="grid-responsive">
+        {% for product in products %}
+        <div class="product-card fade-in">
+          <div class="card-image-container">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-image">
+            {% else %}
+            <i class="fas fa-image fa-3x text-muted"></i>
+            {% endif %}
+          </div>
+          <div class="card-body-modern">
+            <h5 class="card-title-modern">{{ product.name }}</h5>
+            <div class="card-category">
+              {% if product.category %}
+                {{ product.category.name }}
+              {% else %}
+                No Category
+              {% endif %}
+            </div>
+            <div class="card-price">₹{{ product.price }}</div>
+            <div class="card-actions">
+              <a href="{% url 'store:edit_product' product.id %}" class="btn btn-card btn-edit">
+                <i class="fas fa-edit me-1"></i>Edit
+              </a>
+              <a href="{% url 'store:delete_product' product.id %}" class="btn btn-card btn-delete">
+                <i class="fas fa-trash me-1"></i>Delete
+              </a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+          <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+          <h4 class="text-muted">No products yet</h4>
+          <p class="text-muted">Add your first product to get started</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories Section -->
+  <div class="section-card">
+    <div class="section-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="section-title">Categories</h2>
+        <button class="btn btn-primary-modern btn-modern" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+          <i class="fas fa-plus me-2"></i>Add Category
+        </button>
+      </div>
+    </div>
+    <div class="section-content">
+      <div class="grid-responsive">
+        {% for category in categories %}
+        <div class="category-card fade-in">
+          <div class="card-image-container" style="height: 140px;">
+            {% if category.image %}
+            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="card-image">
+            {% else %}
+            <i class="fas fa-folder fa-3x text-muted"></i>
+            {% endif %}
+          </div>
+          <div class="card-body-modern">
+            <h5 class="card-title-modern">{{ category.name }}</h5>
+            <div class="card-actions">
+              <a href="{% url 'store:edit_category' category.id %}" class="btn btn-card btn-edit">
+                <i class="fas fa-edit me-1"></i>Edit
+              </a>
+              <a href="{% url 'store:delete_category' category.id %}" class="btn btn-card btn-delete">
+                <i class="fas fa-trash me-1"></i>Delete
+              </a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+          <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+          <h4 class="text-muted">No categories yet</h4>
+          <p class="text-muted">Add your first category to organize products</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+  <!-- Personalization Requests Section -->
+  <div class="section-card" id="personalization-section">
+    <div class="section-header">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <h2 class="section-title">Personalization Requests</h2>
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+          <div class="legend-modern">
+            <span class="badge badge-modern badge-warning-modern">Pending</span>
+            <span class="badge badge-modern badge-info-modern">Admin Approved</span>
+            <span class="badge badge-modern badge-success-modern">User Approved</span>
+            <span class="badge badge-modern badge-danger-modern">Rejected</span>
+          </div>
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input id="prs-search" type="search" class="search-input-modern" placeholder="Search by user or product...">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section-content">
+      <div class="table-responsive">
+        <table class="table table-modern">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Product</th>
+              <th>Uploaded Design</th>
+              <th>Status</th>
+              <th>Admin Final Image</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="personalization-requests-body">
+            {% for request in personalization_requests %}
+            <tr data-request-id="{{ request.id }}">
+              <td class="prs-user">
+                <div class="d-flex align-items-center">
+                  <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.75rem; color: white;">
+                    {{ request.user.username|first|upper }}
+                  </div>
+                  {{ request.user.username }}
+                </div>
+              </td>
+              <td class="prs-product">{{ request.product.name }}</td>
+              <td>
+                {% if request.uploaded_image %}
+                  <img src="{{ request.uploaded_image.url }}" alt="Uploaded Design" class="img-thumb-modern" onclick="showImageModal('{{ request.uploaded_image.url }}', 'Uploaded Design')">
+                {% else %}
+                  <div class="text-muted d-flex align-items-center">
+                    <i class="fas fa-image me-2"></i>No image
+                  </div>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge badge-modern {% if request.status == 'pending' %}badge-warning-modern{% elif request.status == 'admin_approved' %}badge-info-modern{% elif request.status == 'user_approved' or request.status == 'order_accepted' %}badge-success-modern{% else %}badge-danger-modern{% endif %}">
+                  {{ request.status|title }}
+                </span>
+              </td>
+              <td>
+                {% if request.admin_final_image %}
+                  <img src="{{ request.admin_final_image.url }}" alt="Final Design" class="img-thumb-modern" onclick="showImageModal('{{ request.admin_final_image.url }}', 'Final Design')">
+                {% else %}
+                  <div class="text-muted d-flex align-items-center">
+                    <i class="fas fa-image me-2"></i>Not uploaded
+                  </div>
+                {% endif %}
+              </td>
+              <td>
+                <textarea class="textarea-modern admin-notes" rows="2" placeholder="Add notes..." data-request-id="{{ request.id }}" style="min-width: 200px;">{{ request.admin_notes|default:'' }}</textarea>
+              </td>
+              <td>
+                <div class="d-flex gap-2">
+                  {% if request.status == 'pending' %}
+                    <button class="action-btn action-btn-success approve-btn" data-request-id="{{ request.id }}" title="Approve and upload final design">
+                      <i class="fas fa-upload"></i>Upload Final
+                    </button>
+                    <button class="action-btn action-btn-danger reject-btn" data-request-id="{{ request.id }}" title="Reject request">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  {% elif request.status == 'admin_approved' %}
+                    <button class="action-btn action-btn-disabled" disabled title="Already approved">
+                      <i class="fas fa-check-circle"></i>Approved
+                    </button>
+                  {% elif request.status == 'user_approved' %}
+                    <button class="action-btn action-btn-success accept-order-btn" data-request-id="{{ request.id }}" title="Accept order and add to user's cart">
+                      <i class="fas fa-shopping-cart"></i>Accept Order
+                    </button>
+                    <button class="action-btn action-btn-danger reject-btn" data-request-id="{{ request.id }}" title="Reject request">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  {% elif request.status == 'order_accepted' %}
+                    <button class="action-btn action-btn-disabled" disabled title="Order accepted">
+                      <i class="fas fa-check-double"></i>Order Accepted
+                    </button>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5">
+                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                <div>
+                  <h5 class="text-muted">No personalization requests</h5>
+                  <p class="text-muted mb-0">Personalization requests will appear here when users submit them</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade modal-modern" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="post" enctype="multipart/form-data" action="{% url 'store:add_product' %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="addProductModalLabel">
+            <i class="fas fa-plus me-2"></i>Add New Product
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {{ product_form.as_p }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary-modern btn-modern">
+            <i class="fas fa-plus me-2"></i>Add Product
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade modal-modern" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" enctype="multipart/form-data" action="{% url 'store:add_category' %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="addCategoryModalLabel">
+            <i class="fas fa-folder-plus me-2"></i>Add New Category
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {{ category_form.as_p }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary-modern btn-modern">
+            <i class="fas fa-folder-plus me-2"></i>Add Category
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Image Modal Functionality
+function showImageModal(imageUrl, title) {
+  const modal = document.createElement('div');
+  modal.className = 'image-modal';
+  modal.style.cssText = `
+    display: block;
+    position: fixed;
+    z-index: 1055;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+  `;
+  modal.innerHTML = `
+    <div class="image-modal-content" style="position: relative; margin: auto; padding: 0; width: 90%; max-width: 700px; top: 50%; transform: translateY(-50%);">
+      <div style="position: relative; background: white; border-radius: 16px; overflow: hidden;">
+        <div style="background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: between; align-items: center;">
+          <h4 style="margin: 0; font-weight: 600;">${title}</h4>
+          <button style="position: absolute; right: 1rem; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onclick="this.closest('.image-modal').remove()" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='none'">&times;</button>
+        </div>
+        <div style="padding: 2rem; text-align: center;">
+          <img src="${imageUrl}" alt="${title}" style="max-width: 100%; max-height: 70vh; border-radius: 12px; box-shadow: var(--shadow-lg);">
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Close modal when clicking outside
+  modal.onclick = function(e) {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  };
+  
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal.parentNode) {
+      modal.remove();
+    }
+  }, { once: true });
+}
+
+// Personalization Request Actions
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle approve button clicks
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.approve-btn')) {
+      const requestId = e.target.closest('.approve-btn').getAttribute('data-request-id');
+      if (requestId) {
+        showApproveModal(requestId);
+      }
+    }
+    
+    // Handle reject button clicks
+    if (e.target.closest('.reject-btn')) {
+      const requestId = e.target.closest('.reject-btn').getAttribute('data-request-id');
+      if (requestId && confirm('Are you sure you want to reject this personalization request?')) {
+        rejectPersonalization(requestId);
+      }
+    }
+  });
+  
+  // Handle admin notes changes with debouncing
+  let noteTimeout;
+  document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('admin-notes')) {
+      clearTimeout(noteTimeout);
+      const requestId = e.target.getAttribute('data-request-id');
+      const notes = e.target.value;
+      
+      noteTimeout = setTimeout(() => {
+        updateAdminNotes(requestId, notes);
+      }, 1000);
+    }
+  });
+
+  // Client-side search for Personalization Requests
+  const prsSearch = document.getElementById('prs-search');
+  if (prsSearch) {
+    prsSearch.addEventListener('input', function() {
+      const query = this.value.toLowerCase();
+      const rows = document.querySelectorAll('#personalization-requests-body tr');
+      
+      rows.forEach(row => {
+        const user = row.querySelector('.prs-user')?.textContent.toLowerCase() || '';
+        const product = row.querySelector('.prs-product')?.textContent.toLowerCase() || '';
+        const shouldShow = user.includes(query) || product.includes(query);
+        
+        if (shouldShow) {
+          row.style.display = '';
+          row.classList.add('fade-in');
+        } else {
+          row.style.display = 'none';
+          row.classList.remove('fade-in');
+        }
+      });
+    });
+  }
+});
+
+function showApproveModal(requestId) {
+  const modal = document.createElement('div');
+  modal.className = 'approve-modal';
+  modal.style.cssText = `
+    display: block;
+    position: fixed;
+    z-index: 1055;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+  `;
+  modal.innerHTML = `
+    <div class="approve-modal-content" style="position: relative; margin: auto; width: 90%; max-width: 500px; top: 50%; transform: translateY(-50%);">
+      <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-xl);">
+        <div style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); color: white; padding: 1.5rem 2rem;">
+          <div style="display: flex; justify-content: between; align-items: center;">
+            <h4 style="margin: 0; font-weight: 600;"><i class="fas fa-check-circle me-2"></i>Approve Personalization Request</h4>
+            <button style="position: absolute; right: 1.5rem; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onclick="this.closest('.approve-modal').remove()" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='none'">&times;</button>
+          </div>
+        </div>
+        <form id="approveForm" style="padding: 2rem;">
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+              <i class="fas fa-upload me-2"></i>Upload Final Design:
+            </label>
+            <input type="file" class="form-control-modern" name="final_image" accept="image/*" required style="width: 100%;">
+            <small style="color: var(--text-secondary); margin-top: 0.25rem; display: block;">Upload the final personalized design for the customer</small>
+          </div>
+          <div style="margin-bottom: 2rem;">
+            <label style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+              <i class="fas fa-comment me-2"></i>Notes (optional):
+            </label>
+            <textarea class="textarea-modern" name="notes" rows="3" placeholder="Add any notes for the user..." style="width: 100%;"></textarea>
+          </div>
+          <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button type="button" class="btn btn-secondary btn-modern" onclick="this.closest('.approve-modal').remove()">
+              <i class="fas fa-times me-2"></i>Cancel
+            </button>
+            <button type="submit" class="action-btn action-btn-success" style="padding: 0.75rem 1.5rem;">
+              <i class="fas fa-check me-2"></i>Approve & Upload
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Handle form submission
+  document.getElementById('approveForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalContent = submitBtn.innerHTML;
+    
+    // Show loading state
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+    submitBtn.disabled = true;
+    
+    const formData = new FormData(this);
+    formData.append('request_id', requestId);
+    approvePersonalization(formData, submitBtn, originalContent);
+  });
+  
+  // Close modal when clicking outside
+  modal.onclick = function(e) {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  };
+}
+
+function approvePersonalization(formData, submitBtn, originalContent) {
+  fetch('{% url "store:admin_approve_personalization" %}', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Show success message
+      showNotification('Personalization request approved successfully!', 'success');
+      
+      // Close modal
+      document.querySelector('.approve-modal').remove();
+      
+      // Reload page after a short delay
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
+    } else {
+      showNotification('Error: ' + data.error, 'error');
+      
+      // Reset button
+      submitBtn.innerHTML = originalContent;
+      submitBtn.disabled = false;
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showNotification('Error approving personalization request', 'error');
+    
+    // Reset button
+    submitBtn.innerHTML = originalContent;
+    submitBtn.disabled = false;
+  });
+}
+
+function rejectPersonalization(requestId) {
+  // Show loading state
+  const rejectBtn = document.querySelector(`[data-request-id="${requestId}"].reject-btn`);
+  const originalContent = rejectBtn.innerHTML;
+  rejectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  rejectBtn.disabled = true;
+  
+  fetch('{% url "store:admin_reject_personalization" %}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: JSON.stringify({
+      request_id: requestId
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showNotification('Personalization request rejected successfully!', 'success');
+      
+      // Reload page after a short delay
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
+    } else {
+      showNotification('Error: ' + data.error, 'error');
+      
+      // Reset button
+      rejectBtn.innerHTML = originalContent;
+      rejectBtn.disabled = false;
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showNotification('Error rejecting personalization request', 'error');
+    
+    // Reset button
+    rejectBtn.innerHTML = originalContent;
+    rejectBtn.disabled = false;
+  });
+}
+
+// Accept Order (after user has approved)
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.accept-order-btn')) {
+    const btn = e.target.closest('.accept-order-btn');
+    const requestId = btn.getAttribute('data-request-id');
+    if (!requestId) return;
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+    fetch('{% url "store:admin_accept_order" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      body: JSON.stringify({ request_id: requestId })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        showNotification('Order accepted. Item added to user\'s cart.', 'success');
+        setTimeout(() => location.reload(), 800);
+      } else {
+        showNotification('Error: ' + (data.error || 'Failed to accept order'), 'error');
+        btn.innerHTML = original;
+        btn.disabled = false;
+      }
+    })
+    .catch(err => {
+      console.error('Error:', err);
+      showNotification('Error accepting order', 'error');
+      btn.innerHTML = original;
+      btn.disabled = false;
+    });
+  }
+});
+
+// Open Upload Final modal on Approve button
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.approve-btn')) {
+    const btn = e.target.closest('.approve-btn');
+    const requestId = btn.getAttribute('data-request-id');
+    const notesInput = document.querySelector(`textarea.admin-notes[data-request-id="${requestId}"]`);
+    // Fill modal fields
+    document.getElementById('finalUploadRequestId').value = requestId;
+    document.getElementById('finalImageInput').value = '';
+    document.getElementById('finalNotesInput').value = notesInput ? notesInput.value : '';
+    const modalEl = document.getElementById('finalUploadModal');
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  }
+});
+
+// Handle Final Upload form submit via AJAX (multipart)
+document.getElementById('finalUploadForm')?.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const original = submitBtn.innerHTML;
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+  const formData = new FormData(form);
+  fetch('{% url "store:admin_approve_personalization" %}', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: formData
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      showNotification('Final image uploaded and request approved.', 'success');
+      // Close modal then reload
+      bootstrap.Modal.getInstance(document.getElementById('finalUploadModal'))?.hide();
+      setTimeout(() => location.reload(), 600);
+    } else {
+      showNotification(data.error || 'Upload failed', 'error');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = original;
+    }
+  })
+  .catch(err => {
+    console.error('Upload error', err);
+    showNotification('Error uploading final image', 'error');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = original;
+  });
+});
+
+function updateAdminNotes(requestId, notes) {
+  fetch('{% url "store:update_admin_notes" %}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: JSON.stringify({
+      request_id: requestId,
+      notes: notes
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Optional: Show a subtle success indicator
+      const textarea = document.querySelector(`textarea[data-request-id="${requestId}"]`);
+      if (textarea) {
+        textarea.style.borderColor = 'var(--success-color)';
+        setTimeout(() => {
+          textarea.style.borderColor = 'var(--border-color)';
+        }, 1000);
+      }
+    } else {
+      console.error('Error updating notes:', data.error);
+      showNotification('Error updating notes', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showNotification('Error updating notes', 'error');
+  });
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  const bgColor = type === 'success' ? 'var(--success-color)' : 
+                   type === 'error' ? 'var(--danger-color)' : 
+                   'var(--info-color)';
+  
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: ${bgColor};
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    z-index: 1060;
+    font-weight: 500;
+    max-width: 400px;
+    animation: slideInRight 0.3s ease-out;
+  `;
+  
+  notification.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
+      <span>${message}</span>
+      <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; margin-left: auto; font-size: 1.2rem; cursor: pointer; padding: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">&times;</button>
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Auto-remove after 5 seconds
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.style.animation = 'slideOutRight 0.3s ease-out forwards';
+      setTimeout(() => notification.remove(), 300);
+    }
+  }, 5000);
+}
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+`;
+document.head.appendChild(style);
+
+// Form enhancements
+document.addEventListener('DOMContentLoaded', function() {
+  // Add smooth transitions to form elements
+  const formElements = document.querySelectorAll('input, select, textarea');
+  formElements.forEach(element => {
+    element.addEventListener('focus', function() {
+      this.style.transform = 'scale(1.02)';
+    });
+    
+    element.addEventListener('blur', function() {
+      this.style.transform = 'scale(1)';
+    });
+  });
+  
+  // Add loading states to forms
+  const forms = document.querySelectorAll('form');
+  forms.forEach(form => {
+    form.addEventListener('submit', function() {
+      const submitBtn = this.querySelector('button[type="submit"]');
+      if (submitBtn && !submitBtn.disabled) {
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+        submitBtn.disabled = true;
+        
+        // Re-enable after 10 seconds as fallback
+        setTimeout(() => {
+          if (submitBtn.disabled) {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+          }
+        }, 10000);
+      }
+    });
+  });
+});
+</script>
+
+{% endblock %}
