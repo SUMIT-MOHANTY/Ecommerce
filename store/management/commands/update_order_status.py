@@ -8,11 +8,12 @@ class Command(BaseCommand):
     help = 'Update order status to shipped after 1 day'
 
     def handle(self, *args, **options):
-        # Get orders that are still processing and were created more than 1 day ago
+        # Get orders that are in processing status and were created more than 1 day ago
+        # Note: UPI orders start with 'pending' status and need admin approval to become 'processing'
         one_day_ago = timezone.now() - timedelta(days=1)
         
         orders_to_ship = Order.objects.filter(
-            status='processing',
+            status='processing',  # Only process orders that have been approved and are in processing
             created_at__lt=one_day_ago
         )
         

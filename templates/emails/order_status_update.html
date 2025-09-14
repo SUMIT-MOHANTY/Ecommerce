@@ -87,7 +87,7 @@
                 <h3>📦 Order Details:</h3>
                 <p><strong>Order ID:</strong> #{{ order.id }}</p>
                 <p><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
-                <p><strong>Total Amount:</strong> ${{ order.total_amount }}</p>
+                <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
                 {% if order.delivery_date %}
                 <p><strong>Expected Delivery:</strong> {{ order.delivery_date|date:"F d, Y" }}</p>
                 {% endif %}

@@ -487,7 +487,7 @@
               {% endif %}
             </div>
             
-            <div class="item-price">${{ item.product.price }}</div>
+            <div class="item-price">₹{{ item.product.price }}</div>
             
             <div class="quantity-controls">
               <button class="qty-btn qty-decrease" data-product-id="{{ item.product.id }}">
@@ -499,7 +499,7 @@
               </button>
             </div>
             
-            <div class="item-total">${{ item.total_price }}</div>
+            <div class="item-total">₹{{ item.total_price }}</div>
             
             <button class="delete-btn" data-product-id="{{ item.product.id }}" title="Remove item">
               <i class="fas fa-trash"></i>
@@ -514,7 +514,7 @@
           
           <div class="summary-row">
             <span>Subtotal ({{ cart_total.total_items }} items)</span>
-            <span>${{ cart_total.total_price }}</span>
+            <span>₹{{ cart_total.total_price }}</span>
           </div>
           
           <div class="summary-row">
@@ -529,7 +529,7 @@
           
           <div class="summary-row">
             <span>Total</span>
-            <span class="cart-total-price">${{ cart_total.total_price }}</span>
+            <span class="cart-total-price">₹{{ cart_total.total_price }}</span>
           </div>
           
           <button class="checkout-btn" onclick="window.location.href='{% url 'store:checkout' %}'">
@@ -717,7 +717,7 @@ function updateCartItem(productId, quantity) {
         showToast('Item removed from cart');
       } else {
         const totalElement = document.querySelector(`[data-product-id="${productId}"] .item-total`);
-        if (totalElement) totalElement.textContent = `$${data.item.total_price}`;
+        if (totalElement) totalElement.textContent = `₹${data.item.total_price}`;
         showToast('Cart updated successfully');
       }
       updateCartTotals(data.cart_total);
@@ -766,7 +766,7 @@ function removeCartItem(productId) {
 
 function updateCartTotals(cartTotal) {
   document.querySelectorAll('.cart-total-price').forEach(el => {
-    el.textContent = `$${cartTotal.total_price}`;
+    el.textContent = `₹${cartTotal.total_price}`;
   });
   const cartCountElement = document.querySelector('#cartBadge');
   if (cartCountElement) {

@@ -431,7 +431,7 @@
             <h1 class="product-title">{{ product.name }}</h1>
             
             <div class="product-price">
-              ${{ product.price }}
+              ₹{{ product.price }}
             </div>
             
             {% if product.description %}
@@ -486,9 +486,9 @@
                     <p><strong>Care:</strong> Machine wash cold, tumble dry low</p>
                   </div>
                   <div class="tab-pane" id="shipping">
-                    <p><strong>Free Shipping:</strong> On orders over $50</p>
+                    <p><strong>Free Shipping:</strong> On orders over ₹500</p>
                     <p><strong>Standard:</strong> 3-5 business days</p>
-                    <p><strong>Express:</strong> 1-2 business days (+$10)</p>
+                    <p><strong>Express:</strong> 1-2 business days (+₹100)</p>
                     <p><strong>Returns:</strong> 30-day hassle-free returns</p>
                   </div>
                   <div class="tab-pane" id="reviews">
@@ -521,7 +521,7 @@
             {% endif %}
             <div class="related-product-body">
               <h5 class="related-product-title">{{ related_product.name }}</h5>
-              <div class="related-product-price">${{ related_product.price }}</div>
+              <div class="related-product-price">₹{{ related_product.price }}</div>
             </div>
           </div>
         </a>

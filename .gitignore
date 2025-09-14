@@ -137,6 +137,14 @@ static/
 *.sqlite3
 *.db
 
+# Django migrations
+*/migrations/
+**/migrations/
+migrations/
+# Keep the __init__.py files in migrations
+!*/migrations/__init__.py
+!**/migrations/__init__.py
+
 # Environment variables
 .env
 .env.local

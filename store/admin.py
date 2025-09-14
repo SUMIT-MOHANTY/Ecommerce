@@ -176,6 +176,32 @@ def process_order_return(modeladmin, request, queryset):
 process_order_return.short_description = "Process selected order returns"
 
 
+def approve_upi_orders(modeladmin, request, queryset):
+    """Admin action to approve UPI orders and move them to processing"""
+    from accounts.email_utils import send_order_status_update_email
+    
+    updated = 0
+    for order in queryset:
+        if order.status == 'pending' and order.payment_method == 'upi':
+            order.status = 'processing'
+            order.save(update_fields=['status'])
+            updated += 1
+            
+            # Send notification email to customer
+            if order.user and order.user.email:
+                send_order_status_update_email(
+                    order, 
+                    "Your UPI payment has been verified and your order is now being processed!"
+                )
+    
+    if updated > 0:
+        modeladmin.message_user(request, f"Successfully approved {updated} UPI order(s). They are now in processing status and customers have been notified.")
+    else:
+        modeladmin.message_user(request, "No UPI orders were updated. Only pending UPI orders can be approved.", level='WARNING')
+
+approve_upi_orders.short_description = "Approve selected UPI orders (pending → processing)"
+
+
 def mark_orders_as_shipped(modeladmin, request, queryset):
     """Admin action to mark orders as shipped"""
     updated = 0
@@ -215,7 +241,7 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ('id', 'user__username', 'full_name', 'phone', 'tracking_number')
     readonly_fields = ('created_at', 'updated_at', 'shipped_at', 'delivered_at')
     inlines = [OrderItemInline]
-    actions = [process_order_return, mark_orders_as_shipped, mark_orders_as_delivered]
+    actions = [approve_upi_orders, process_order_return, mark_orders_as_shipped, mark_orders_as_delivered]
 
     fieldsets = (
         ('Customer', {

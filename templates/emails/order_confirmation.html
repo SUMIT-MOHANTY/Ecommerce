@@ -59,6 +59,14 @@
             border-left: 4px solid #06b6d4;
             margin: 20px 0;
         }
+        .status-box {
+            background: #fef3c7;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #f59e0b;
+            margin: 20px 0;
+            text-align: center;
+        }
         .footer {
             text-align: center;
             margin-top: 30px;
@@ -88,7 +96,14 @@
         <div class="content">
             <h2>Thank you {{ user.get_full_name|default:user.username }}!</h2>
             
-            <p>Your order has been successfully placed and we're processing it now.</p>
+            <p>Your order has been successfully placed{% if order.payment_method == 'upi' %} and is awaiting payment approval{% else %} and we're processing it now{% endif %}.</p>
+            
+            {% if order.payment_method == 'upi' %}
+            <div class="status-box">
+                <h3>💳 UPI Payment Notice:</h3>
+                <p>Your order is currently pending payment verification by our team. Once the payment is confirmed, your order will be processed and shipped.</p>
+            </div>
+            {% endif %}
             
             <div class="info-box">
                 <h3>📦 Order Details:</h3>
@@ -106,18 +121,18 @@
                 {% for item in order.items.all %}
                 <div class="order-item">
                     <span>{{ item.product_name }} (x{{ item.quantity }})</span>
-                    <span>${{ item.line_total }}</span>
+                    <span>₹{{ item.line_total }}</span>
                 </div>
                 {% endfor %}
                 {% if order.payment_method == 'cod' %}
                 <div class="order-item">
                     <span>COD Charges</span>
-                    <span>$30.00</span>
+                    <span>₹30.00</span>
                 </div>
                 {% endif %}
                 <div class="order-item">
                     <span>Total Amount</span>
-                    <span>${{ order.total_amount }}</span>
+                    <span>₹{{ order.total_amount }}</span>
                 </div>
             </div>
             

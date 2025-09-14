@@ -171,7 +171,7 @@ def run_cart_tests():
         
         assert cart_total['total_items'] == 3
         assert abs(float(cart_total['total_price']) - expected_total) < 0.01  # Allow for floating point precision
-        print(f"✅ Cart totals correct: {cart_total['total_items']} items, ${cart_total['total_price']}")
+        print(f"✅ Cart totals correct: {cart_total['total_items']} items, ₹{cart_total['total_price']}")
         
     except Exception as e:
         print(f"❌ Failed cart totals: {e}")

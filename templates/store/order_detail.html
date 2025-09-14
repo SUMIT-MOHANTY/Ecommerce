@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .order-detail-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  .order-detail-title { 
+    color: var(--primary-color); 
+    font-weight: 700;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+
+  .order-detail-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 2px;
+  }
+
+  .detail-card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+    border-radius: 12px; 
+    border: none;
+    background: white;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+  }
+  
+  .detail-card:hover { 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12); 
+    transform: translateY(-1px);
+  }
+  
+  .detail-card h5 { 
+    color: var(--text-primary); 
+    font-weight: 600; 
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .order-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-item {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .info-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .info-value {
+    color: var(--text-secondary);
+    font-size: 1rem;
+  }
+
+  .status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+  }
+
+  .status-processing { background: #fef3c7; color: #92400e; }
+  .status-shipped { background: #dbeafe; color: #1e40af; }
+  .status-delivered { background: #d1fae5; color: #065f46; }
+  .status-cancelled { background: #fee2e2; color: #dc2626; }
+
+  .order-items {
+    margin-bottom: 2rem;
+  }
+
+  .order-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .order-item:last-child {
+    border-bottom: none;
+  }
+
+  .item-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+
+  .item-details {
+    flex: 1;
+  }
+
+  .item-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .item-quantity {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  .item-price {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+  }
+
+  .personalization-section {
+    margin-top: 2rem;
+  }
+
+  .personalization-item {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e5e7eb;
+  }
+
+  .image-comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .image-section {
+    text-align: center;
+  }
+
+  .image-section h6 {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .personalization-image {
+    width: 100%;
+    max-width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+  }
+
+  .personalization-image:hover {
+    transform: scale(1.05);
+    border-color: var(--primary-color);
+  }
+
+  .admin-notes {
+    background: #fffbeb;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+
+  .admin-notes h6 {
+    color: #92400e;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .admin-notes p {
+    color: #92400e;
+    margin: 0;
+  }
+
+  .back-button {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border: none;
+    border-radius: 10px;
+    padding: 0.875rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .back-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .order-detail-container {
+      padding: 1rem 0;
+    }
+
+    .order-detail-title {
+      font-size: 1.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .order-info-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .image-comparison {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .personalization-image {
+      max-width: 150px;
+      height: 150px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+  <div class="container">
+    <h2 class="order-detail-title">Order Details</h2>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <!-- Order Information -->
+        <div class="detail-card p-4">
+          <h5><i class="fas fa-info-circle me-2"></i>Order Information</h5>
+          
+          <div class="order-info-grid">
+            <div class="info-item">
+              <div class="info-label">Order ID</div>
+              <div class="info-value">#{{ order.id }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Status</div>
+              <div class="info-value">
+                <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Order Date</div>
+              <div class="info-value">{{ order.created_at|date:"M d, Y - g:i A" }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Delivery Date</div>
+              <div class="info-value">{{ order.delivery_date|date:"M d, Y" }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Payment Method</div>
+              <div class="info-value">{{ order.get_payment_method_display }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Total Amount</div>
+              <div class="info-value"><strong>₹{{ order.total_amount }}</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="detail-card p-4">
+          <h5><i class="fas fa-shopping-bag me-2"></i>Order Items</h5>
+          
+          <div class="order-items">
+            {% for item in order.items.all %}
+            <div class="order-item">
+              <div class="item-image">
+                {% if item.product.image %}
+                  <img src="{{ item.product.image.url }}" alt="{{ item.product_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                {% else %}
+                  <i class="fas fa-image text-muted"></i>
+                {% endif %}
+              </div>
+              <div class="item-details">
+                <div class="item-name">{{ item.product_name }}</div>
+                <div class="item-quantity">Quantity: {{ item.quantity }} × ₹{{ item.unit_price }}</div>
+              </div>
+              <div class="item-price">₹{{ item.line_total }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Personalization Images -->
+        {% if personalization_images %}
+        <div class="detail-card p-4">
+          <h5><i class="fas fa-paint-brush me-2"></i>Personalization Details</h5>
+          
+          <div class="personalization-section">
+            {% for p in personalization_images %}
+            <div class="personalization-item">
+              <h6>{{ p.product_name }} - Custom Design</h6>
+              
+              <div class="image-comparison">
+                <!-- User Uploaded Image -->
+                <div class="image-section">
+                  <h6><i class="fas fa-user me-2"></i>Your Original Design</h6>
+                  {% if p.user_image %}
+                    <img src="{{ p.user_image.url }}" alt="User uploaded design" class="personalization-image">
+                  {% else %}
+                    <div class="personalization-image d-flex align-items-center justify-content-center" style="background: #f3f4f6;">
+                      <i class="fas fa-image text-muted"></i>
+                    </div>
+                  {% endif %}
+                </div>
+
+                <!-- Admin Final Image -->
+                <div class="image-section">
+                  <h6><i class="fas fa-check-circle me-2"></i>Final Design (Admin Approved)</h6>
+                  {% if p.admin_image %}
+                    <img src="{{ p.admin_image.url }}" alt="Admin final design" class="personalization-image">
+                  {% else %}
+                    <div class="personalization-image d-flex align-items-center justify-content-center" style="background: #f3f4f6;">
+                      <i class="fas fa-image text-muted"></i>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Admin Notes -->
+              {% if p.admin_notes %}
+              <div class="admin-notes">
+                <h6><i class="fas fa-sticky-note me-2"></i>Admin Notes</h6>
+                <p>{{ p.admin_notes }}</p>
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <div class="text-center">
+          <a href="{% url 'accounts:my_orders' %}" class="back-button">
+            <i class="fas fa-arrow-left me-2"></i>Back to My Orders
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

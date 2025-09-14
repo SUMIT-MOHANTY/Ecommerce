@@ -18,7 +18,14 @@
   <div class="text-center">
     <div class="mb-3 success-icon"><i class="fas fa-check-circle"></i></div>
     <h2 class="fw-bold mb-2">Order Placed Successfully</h2>
-    <p class="text-muted">Thank you! Your order has been created.</p>
+    <p class="text-muted">Thank you! Your order has been created{% if order.payment_method == 'upi' %} and is awaiting payment approval{% endif %}.</p>
+    
+    {% if order.payment_method == 'upi' %}
+    <div class="alert alert-info mt-3">
+      <i class="fas fa-info-circle me-2"></i>
+      <strong>UPI Payment Order:</strong> Your order is pending payment verification. Once the payment is confirmed by our team, your order will be processed and shipped.
+    </div>
+    {% endif %}
   </div>
 
   <div class="row justify-content-center mt-4">

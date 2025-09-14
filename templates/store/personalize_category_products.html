@@ -184,7 +184,7 @@
           {% if product.description %}
             <div class="product-description">{{ product.description|truncatewords:15 }}</div>
           {% endif %}
-          <div class="product-price">${{ product.price }}</div>
+          <div class="product-price">₹{{ product.price }}</div>
           <button class="personalize-btn">
             <i class="fas fa-upload upload-icon"></i>
             Upload Your Design

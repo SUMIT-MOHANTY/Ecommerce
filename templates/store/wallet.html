@@ -174,7 +174,7 @@
       <div class="col-lg-6">
         <div class="balance-card">
           <div class="balance-label">Current Balance</div>
-          <div class="balance-amount">${{ wallet.balance }}</div>
+          <div class="balance-amount">₹{{ wallet.balance }}</div>
           <div class="balance-label">Available for spending</div>
         </div>
       </div>
@@ -195,7 +195,7 @@
                 </div>
                 <div class="d-flex align-items-center">
                   <div class="transaction-amount transaction-{{ transaction.transaction_type }}">
-                    {% if transaction.transaction_type == 'credit' %}+{% else %}-{% endif %}${{ transaction.amount }}
+                    {% if transaction.transaction_type == 'credit' %}+{% else %}-{% endif %}₹{{ transaction.amount }}
                   </div>
                   <span class="transaction-badge badge-{{ transaction.transaction_type }}">
                     {% if transaction.transaction_type == 'credit' %}Credit{% else %}Debit{% endif %}

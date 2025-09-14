@@ -138,6 +138,29 @@
     padding: 1rem;
     margin-bottom: 1rem;
   }
+  
+  /* Address Card Styles */
+  .address-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    position: relative;
+  }
+  
+  .address-card:hover {
+    border-color: var(--primary-color);
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  .address-card.selected {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(20, 184, 166, 0.1));
+  }
 
   .btn-place-order {
     background: linear-gradient(135deg, var(--success-color), #059669);
@@ -309,40 +332,103 @@
       <div class="col-lg-7">
         <div class="checkout-card p-4">
           <h5><i class="fas fa-shipping-fast me-2"></i>Shipping Information</h5>
+          
+          <!-- Saved Addresses Section -->
+          {% if user.is_authenticated and saved_addresses %}
+          <div class="mb-4">
+            <h6 class="mb-3"><i class="fas fa-address-book me-2"></i>Saved Addresses</h6>
+            <div class="row">
+              {% for address in saved_addresses %}
+              <div class="col-md-6 mb-3">
+                <div class="address-card {{ address.is_default|yesno:'border-primary,border-secondary' }}" 
+                     onclick="selectSavedAddress({{ address.id }})" 
+                     data-address-id="{{ address.id }}"
+                     data-full-name="{{ address.full_name }}"
+                     data-address-line1="{{ address.address_line1 }}"
+                     data-address-line2="{{ address.address_line2|default:'' }}"
+                     data-city="{{ address.city }}"
+                     data-state="{{ address.state }}"
+                     data-postal-code="{{ address.postal_code }}"
+                     data-phone="{{ address.phone }}">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <strong>{{ address.full_name }}</strong>
+                      {% if address.is_default %}
+                        <span class="badge bg-primary ms-2">Default</span>
+                      {% endif %}
+                    </div>
+                    <input type="radio" name="selected_address" value="{{ address.id }}" 
+                           class="form-check-input" {% if address.is_default %}checked{% endif %}>
+                  </div>
+                  <small class="text-muted d-block mt-1">
+                    {{ address.address_line1 }}{% if address.address_line2 %}, {{ address.address_line2 }}{% endif %}<br>
+                    {{ address.city }}, {{ address.state }} - {{ address.postal_code }}<br>
+                    Phone: {{ address.phone }}
+                  </small>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="mb-3">
+              <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleNewAddressForm()">
+                <i class="fas fa-plus me-1"></i>Add New Address
+              </button>
+            </div>
+          </div>
+          {% endif %}
+          
+          <!-- Address Form -->
+          <div id="addressForm" class="{% if user.is_authenticated and default_address and not form %}d-none{% endif %}">
+            <h6 class="mb-3"><i class="fas fa-map-marker-alt me-2"></i>{% if user.is_authenticated and saved_addresses %}New Address{% else %}Shipping Address{% endif %}</h6>
           <form id="checkoutForm" method="post" action="{% url 'store:checkout' %}">
             {% csrf_token %}
             <div class="mb-3">
               <label class="form-label">Full Name</label>
-              <input type="text" name="full_name" class="form-control" required value="{{ form.full_name|default:'' }}" placeholder="Enter your full name">
+              <input type="text" name="full_name" id="full_name" class="form-control" required 
+                     value="{% if form.full_name %}{{ form.full_name }}{% elif default_address %}{{ default_address.full_name }}{% endif %}" 
+                     placeholder="Enter your full name">
             </div>
             <div class="mb-3">
               <label class="form-label">Address Line 1</label>
-              <input type="text" name="address_line1" class="form-control" required value="{{ form.address_line1|default:'' }}" placeholder="Street address, building, etc.">
+              <input type="text" name="address_line1" id="address_line1" class="form-control" required 
+                     value="{% if form.address_line1 %}{{ form.address_line1 }}{% elif default_address %}{{ default_address.address_line1 }}{% endif %}" 
+                     placeholder="Street address, building, etc.">
             </div>
             <div class="mb-3">
               <label class="form-label">Address Line 2 <span class="text-muted">(optional)</span></label>
-              <input type="text" name="address_line2" class="form-control" value="{{ form.address_line2|default:'' }}" placeholder="Apartment, suite, unit, etc.">
+              <input type="text" name="address_line2" id="address_line2" class="form-control" 
+                     value="{% if form.address_line2 %}{{ form.address_line2 }}{% elif default_address %}{{ default_address.address_line2|default:'' }}{% endif %}" 
+                     placeholder="Apartment, suite, unit, etc.">
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label class="form-label">City</label>
-                <input type="text" name="city" class="form-control" required value="{{ form.city|default:'' }}" placeholder="City">
+                <input type="text" name="city" id="city" class="form-control" required 
+                       value="{% if form.city %}{{ form.city }}{% elif default_address %}{{ default_address.city }}{% endif %}" 
+                       placeholder="City">
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">State</label>
-                <input type="text" name="state" class="form-control" required value="{{ form.state|default:'' }}" placeholder="State">
+                <input type="text" name="state" id="state" class="form-control" required 
+                       value="{% if form.state %}{{ form.state }}{% elif default_address %}{{ default_address.state }}{% endif %}" 
+                       placeholder="State">
               </div>
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label class="form-label">Postal Code</label>
-                <input type="text" name="postal_code" class="form-control" required value="{{ form.postal_code|default:'' }}" placeholder="ZIP/Postal Code">
+                <input type="text" name="postal_code" id="postal_code" class="form-control" required 
+                       value="{% if form.postal_code %}{{ form.postal_code }}{% elif default_address %}{{ default_address.postal_code }}{% endif %}" 
+                       placeholder="ZIP/Postal Code">
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">Phone Number</label>
-                <input type="text" name="phone" class="form-control" required value="{{ form.phone|default:'' }}" placeholder="Phone number">
+                <input type="text" name="phone" id="phone" class="form-control" required 
+                       value="{% if form.phone %}{{ form.phone }}{% elif default_address %}{{ default_address.phone }}{% endif %}" 
+                       placeholder="Phone number">
               </div>
             </div>
+          </div>
             
             <h6 class="mt-4 mb-3"><i class="fas fa-credit-card me-2"></i>Payment Method</h6>
             
@@ -353,7 +439,7 @@
                 <input class="form-check-input" type="checkbox" id="useWallet" name="use_wallet">
                 <label class="form-check-label" for="useWallet">
                   <i class="fas fa-wallet me-2"></i>Use Wallet Balance
-                  <span class="text-success ms-2">(Available: ${{ user_wallet.balance }})</span>
+                  <span class="text-success ms-2">(Available: ₹{{ user_wallet.balance }})</span>
                 </label>
               </div>
               <div id="walletAmountSection" class="mt-2" style="display: none;">
@@ -365,7 +451,7 @@
                   </div>
                   <div class="col-md-4">
                     <button type="button" class="btn btn-outline-primary btn-sm" id="useMaxWallet">
-                      Use Max (${{ user_wallet.balance }})
+                      Use Max (₹{{ user_wallet.balance }})
                     </button>
                   </div>
                 </div>
@@ -377,7 +463,7 @@
                 <input class="form-check-input" type="radio" name="payment_method" id="codOption" value="cod" {% if form.payment_method|default:'cod' == 'cod' %}checked{% endif %}>
                 <label class="form-check-label" for="codOption">
                   <i class="fas fa-money-bill-wave me-2"></i>Cash on Delivery (COD)
-                  <span class="text-warning ms-2"><small>+$30 COD charges</small></span>
+                  <span class="text-warning ms-2"><small>+₹30 COD charges</small></span>
                 </label>
               </div>
               <div class="form-check mb-3">
@@ -439,7 +525,7 @@
             {% for item in regular_cart_items %}
               <div class="order-item">
                 <span class="order-item-name">{{ item.product.name }} × {{ item.quantity }}</span>
-                <span class="order-item-price">${{ item.total_price }}</span>
+                <span class="order-item-price">₹{{ item.total_price }}</span>
               </div>
             {% endfor %}
           {% endif %}
@@ -459,7 +545,7 @@
                       <i class="fas fa-plus"></i> Add to Cart
                     </button>
                   </span>
-                  <span class="order-item-price">${{ p.product.price }}</span>
+                  <span class="order-item-price">₹{{ p.product.price }}</span>
                 </div>
               {% endif %}
             {% endfor %}
@@ -472,7 +558,7 @@
             </div>
             <div class="total-row">
               <span>Subtotal:</span>
-              <span>${{ cart_total.total_price }}</span>
+              <span>₹{{ cart_total.total_price }}</span>
             </div>
             <div class="total-row">
               <span>Shipping:</span>
@@ -480,19 +566,19 @@
             </div>
             <div class="total-row" id="codChargeRow" style="display: none;">
               <span>COD Charges:</span>
-              <span class="text-warning">$30</span>
+              <span class="text-warning">₹30</span>
             </div>
             <div class="total-row" id="walletUsedRow" style="display: none;">
               <span>Wallet Used:</span>
-              <span class="text-info">-$<span id="walletUsedAmount">0.00</span></span>
+              <span class="text-info">-₹<span id="walletUsedAmount">0.00</span></span>
             </div>
             <div class="total-row" id="remainingAmountRow" style="display: none;">
               <span>Remaining Amount:</span>
-              <span id="remainingAmount">$0.00</span>
+              <span id="remainingAmount">₹0.00</span>
             </div>
             <div class="total-row">
               <span>Total:</span>
-              <span id="finalTotal">${{ cart_total.total_price }}</span>
+              <span id="finalTotal">₹{{ cart_total.total_price }}</span>
             </div>
           </div>
           
@@ -559,13 +645,13 @@ document.addEventListener('DOMContentLoaded', function() {
       if (walletUsedRow) walletUsedRow.style.display = 'flex';
       if (walletUsedAmount) walletUsedAmount.textContent = currentWalletAmount.toFixed(2);
       if (remainingAmountRow) remainingAmountRow.style.display = 'flex';
-      if (remainingAmount) remainingAmount.textContent = '$' + Math.max(0, remainingTotal).toFixed(2);
+      if (remainingAmount) remainingAmount.textContent = '₹' + Math.max(0, remainingTotal).toFixed(2);
     } else {
       if (walletUsedRow) walletUsedRow.style.display = 'none';
       if (remainingAmountRow) remainingAmountRow.style.display = 'none';
     }
     
-    if (finalTotal) finalTotal.textContent = '$' + totalAmount.toFixed(2);
+    if (finalTotal) finalTotal.textContent = '₹' + totalAmount.toFixed(2);
   }
   
   // Initial setup
@@ -698,6 +784,57 @@ document.addEventListener('DOMContentLoaded', function() {
       const amount = baseTotal - currentWalletAmount;
       const upiUrl = `upi://pay?pa=${selectedMethod.upi_id}&pn=CustomizeClothing&am=${amount}&cu=INR`;
       qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiUrl)}`;
+    }
+  }
+  
+  // Address management functions
+  function selectSavedAddress(addressId) {
+    // Remove selected class from all address cards
+    document.querySelectorAll('.address-card').forEach(card => {
+      card.classList.remove('selected');
+      card.querySelector('input[type="radio"]').checked = false;
+    });
+    
+    // Add selected class to clicked card
+    const selectedCard = document.querySelector(`[data-address-id="${addressId}"]`);
+    selectedCard.classList.add('selected');
+    selectedCard.querySelector('input[type="radio"]').checked = true;
+    
+    // Populate form fields
+    document.getElementById('full_name').value = selectedCard.dataset.fullName;
+    document.getElementById('address_line1').value = selectedCard.dataset.addressLine1;
+    document.getElementById('address_line2').value = selectedCard.dataset.addressLine2;
+    document.getElementById('city').value = selectedCard.dataset.city;
+    document.getElementById('state').value = selectedCard.dataset.state;
+    document.getElementById('postal_code').value = selectedCard.dataset.postalCode;
+    document.getElementById('phone').value = selectedCard.dataset.phone;
+    
+    // Hide address form if using saved address
+    document.getElementById('addressForm').classList.add('d-none');
+  }
+  
+  function toggleNewAddressForm() {
+    const addressForm = document.getElementById('addressForm');
+    const isHidden = addressForm.classList.contains('d-none');
+    
+    if (isHidden) {
+      // Show form and clear saved address selection
+      addressForm.classList.remove('d-none');
+      document.querySelectorAll('.address-card').forEach(card => {
+        card.classList.remove('selected');
+        card.querySelector('input[type="radio"]').checked = false;
+      });
+      // Clear form fields
+      document.getElementById('full_name').value = '';
+      document.getElementById('address_line1').value = '';
+      document.getElementById('address_line2').value = '';
+      document.getElementById('city').value = '';
+      document.getElementById('state').value = '';
+      document.getElementById('postal_code').value = '';
+      document.getElementById('phone').value = '';
+    } else {
+      // Hide form
+      addressForm.classList.add('d-none');
     }
   }
   

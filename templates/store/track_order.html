@@ -157,9 +157,16 @@
               <div class="col-md-6">
                 <p class="mb-1"><strong>Order Date:</strong> {{ order.created_at|date:"M d, Y" }}</p>
                 <p class="mb-1"><strong>Expected Delivery:</strong> {{ order.delivery_date|date:"M d, Y" }}</p>
-                <p class="mb-0"><strong>Total:</strong> ${{ order.total_amount }}</p>
+                <p class="mb-0"><strong>Total:</strong> ₹{{ order.total_amount }}</p>
               </div>
             </div>
+            
+            {% if order.payment_method == 'upi' and order.status == 'pending' %}
+            <div class="alert alert-warning mt-3">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>UPI Payment Pending:</strong> Your order is awaiting payment verification by our team. Once confirmed, it will move to processing.
+            </div>
+            {% endif %}
           </div>
 
           <div class="tracking-timeline">
@@ -177,9 +184,29 @@
               <div class="timeline-line completed"></div>
             </div>
 
+            {% if order.payment_method == 'upi' %}
+            <!-- Payment Approval (UPI only) -->
+            <div class="timeline-item">
+              <div class="timeline-icon {% if order.status == 'pending' %}current{% else %}completed{% endif %}">
+                <i class="fas fa-credit-card"></i>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-title">Payment Approval</div>
+                <div class="timeline-date">
+                  {% if order.status == 'pending' %}
+                    Awaiting approval
+                  {% else %}
+                    Approved
+                  {% endif %}
+                </div>
+              </div>
+              <div class="timeline-line {% if order.status != 'pending' %}completed{% endif %}"></div>
+            </div>
+            {% endif %}
+
             <!-- Processing -->
             <div class="timeline-item">
-              <div class="timeline-icon {% if order.status == 'processing' %}current{% else %}completed{% endif %}">
+              <div class="timeline-icon {% if order.status == 'processing' %}current{% elif order.status == 'shipped' or order.status == 'delivered' %}completed{% else %}pending{% endif %}">
                 <i class="fas fa-cog"></i>
               </div>
               <div class="timeline-content">
@@ -187,12 +214,14 @@
                 <div class="timeline-date">
                   {% if order.status == 'processing' %}
                     In progress
-                  {% else %}
+                  {% elif order.status == 'shipped' or order.status == 'delivered' %}
                     Completed
+                  {% else %}
+                    Pending
                   {% endif %}
                 </div>
               </div>
-              <div class="timeline-line {% if order.status != 'processing' %}completed{% endif %}"></div>
+              <div class="timeline-line {% if order.status == 'shipped' or order.status == 'delivered' %}completed{% endif %}"></div>
             </div>
 
             <!-- Shipped -->

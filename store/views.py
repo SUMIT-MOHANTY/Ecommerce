@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test, login_required
-from .models import Product, CustomizationRequest, Category, PersonalizationRequest, Order, OrderItem, Wallet, WalletTransaction, UPIPaymentMethod
+from .models import Product, CustomizationRequest, Category, PersonalizationRequest, Order, OrderItem, Wallet, WalletTransaction, UPIPaymentMethod, UserAddress
 from .cart_utils import get_cart_items, get_cart_total, clear_cart
 from django import forms
 from django.template.loader import render_to_string
@@ -260,7 +260,7 @@ def admin_accept_order(request):
 
 @login_required
 def approve_personalization(request):
-    """User approves the admin-approved design and adds it to cart"""
+    """User approves the admin-approved design and marks it as ready for cart"""
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -269,31 +269,21 @@ def approve_personalization(request):
             personalization = get_object_or_404(PersonalizationRequest, id=request_id, user=request.user)
             
             if personalization.status == 'admin_approved' and personalization.admin_final_image:
-                # Add the product to cart using cart utilities
-                from .cart_utils import add_to_cart
+                # Mark as order accepted (ready for cart) and set initial quantity
+                personalization.status = 'order_accepted'
+                personalization.cart_quantity = 1
+                personalization.save()
                 
-                try:
-                    # Add product to cart with quantity 1
-                    cart_item = add_to_cart(request, personalization.product.id, quantity=1)
-                    
-                    # Mark as order accepted (since it's now in cart)
-                    personalization.status = 'order_accepted'
-                    personalization.save()
-                    
-                    # Send email notification about personalization status
-                    if personalization.user.email:
-                        send_personalization_update_email(personalization, 'order_accepted')
-                    
-                    return JsonResponse({
-                        'success': True,
-                        'message': 'Design approved and added to cart successfully!'
-                    })
-                except ValueError as e:
-                    # Handle stock issues
-                    return JsonResponse({
-                        'success': False, 
-                        'error': f'Cannot add to cart: {str(e)}'
-                    })
+                # Send email notification about personalization status
+                if personalization.user.email:
+                    send_personalization_update_email(personalization, 'order_accepted')
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Design approved and ready for cart!',
+                    'personalization_id': personalization.id,
+                    'product_price': float(personalization.product.price)
+                })
             else:
                 return JsonResponse({
                     'success': False, 
@@ -443,6 +433,18 @@ def return_order(request, order_id):
 
 
 @login_required
+def order_detail(request, order_id):
+    """Display detailed order information including personalization images"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    personalization_images = order.get_personalization_images()
+    
+    return render(request, 'store/order_detail.html', {
+        'order': order,
+        'personalization_images': personalization_images
+    })
+
+
+@login_required
 def track_order(request, order_id):
     """Display order tracking information"""
     order = get_object_or_404(Order, id=order_id, user=request.user)
@@ -481,6 +483,27 @@ def checkout(request):
     # Gather items from cart (includes both regular and personalized items)
     cart_items = get_cart_items(request)
     cart_total = get_cart_total(request)
+    
+    # Add personalized items to cart totals (same logic as cart_page)
+    personalization_cart_total = Decimal('0.00')
+    personalization_requests = []
+    if request.user.is_authenticated:
+        personalization_requests = PersonalizationRequest.objects.filter(
+            user=request.user,
+            status__in=['pending', 'admin_approved', 'user_approved', 'order_accepted']
+        ).select_related('product').order_by('-created_at')
+        
+        # Calculate total for personalized items in cart
+        for req in personalization_requests:
+            if req.is_in_cart:
+                personalization_cart_total += req.cart_total_price
+    
+    # Calculate combined totals (including personalized items)
+    combined_cart_total = {
+        'total_price': cart_total['total_price'] + personalization_cart_total,
+        'total_items': cart_total['total_items'] + sum(req.cart_quantity for req in personalization_requests if req.is_in_cart),
+        'item_count': cart_total['item_count'] + sum(1 for req in personalization_requests if req.is_in_cart)
+    }
 
     # Get active UPI payment methods
     upi_payment_methods = UPIPaymentMethod.objects.filter(is_active=True).order_by('display_order')
@@ -491,6 +514,13 @@ def checkout(request):
         user_wallet, created = Wallet.objects.get_or_create(user=request.user)
 
     # Get personalization requests that are NOT in cart (only show pending personalized items)
+    # Get user's saved addresses
+    saved_addresses = []
+    default_address = None
+    if request.user.is_authenticated:
+        saved_addresses = UserAddress.objects.filter(user=request.user).order_by('-is_default', '-created_at')
+        default_address = saved_addresses.filter(is_default=True).first()
+    
     # Get personalization requests that are NOT in cart (only show pending personalized items)
     personalization_items = []
     personalization_total = Decimal('0.00')
@@ -536,10 +566,13 @@ def checkout(request):
             if product.stock < qty:
                 out_of_stock.append(f"{product.name} (need {qty}, have {product.stock})")
             total_amount += item.total_price
+        
+        # Add personalized items total to cart total
+        total_amount += personalization_cart_total
 
         # Add COD charges if COD payment method is selected
         if payment_method == 'cod':
-            total_amount += Decimal('30.00')  # $30 COD charge
+            total_amount += Decimal('30.00')  # ₹30 COD charge
             
         # Handle wallet payment
         wallet_amount_to_use = Decimal('0.00')
@@ -549,7 +582,7 @@ def checkout(request):
         if use_wallet and request.user.is_authenticated and user_wallet:
             # Validate wallet amount
             if wallet_amount > user_wallet.balance:
-                errors.append(f'Insufficient wallet balance. Available: ${user_wallet.balance}')
+                errors.append(f'Insufficient wallet balance. Available: ₹{user_wallet.balance}')
             elif wallet_amount > total_amount:
                 errors.append('Wallet amount cannot exceed total order amount.')
             else:
@@ -570,7 +603,7 @@ def checkout(request):
                 'cart_items': cart_items,
                 'personalization_items': personalization_items,
                 'personalization_total': personalization_total,
-                'cart_total': cart_total,
+                'cart_total': combined_cart_total,  # Use combined totals
                 'upi_payment_methods': upi_payment_methods,
                 'user_wallet': user_wallet,
                 'errors': errors,
@@ -587,6 +620,9 @@ def checkout(request):
                 }
             })
 
+        # Determine initial order status based on payment method
+        initial_status = 'pending' if payment_method == 'upi' else 'processing'
+        
         # Create order
         order = Order.objects.create(
             user=request.user if request.user.is_authenticated else None,
@@ -604,7 +640,36 @@ def checkout(request):
             wallet_amount_used=wallet_amount_to_use,
             remaining_amount=remaining_amount,
             delivery_date=timezone.now().date() + timedelta(days=5),
+            status=initial_status,
         )
+        
+        # Save address for authenticated users
+        if request.user.is_authenticated:
+            # Check if address already exists
+            existing_address = UserAddress.objects.filter(
+                user=request.user,
+                full_name=full_name,
+                address_line1=address_line1,
+                address_line2=address_line2 or '',
+                city=city,
+                state=state,
+                postal_code=postal_code,
+                phone=phone
+            ).first()
+            
+            if not existing_address:
+                # Create new address
+                UserAddress.objects.create(
+                    user=request.user,
+                    full_name=full_name,
+                    address_line1=address_line1,
+                    address_line2=address_line2 or '',
+                    city=city,
+                    state=state,
+                    postal_code=postal_code,
+                    phone=phone,
+                    is_default=not UserAddress.objects.filter(user=request.user).exists()  # Set as default if it's the first address
+                )
 
         # Create order items and reduce stock (only cart items)
         for item in cart_items:
@@ -619,6 +684,29 @@ def checkout(request):
             # reduce stock
             item.product.stock = max(0, item.product.stock - item.quantity)
             item.product.save(update_fields=['stock'])
+        
+        # Create order items for personalized items in cart
+        if request.user.is_authenticated:
+            personalized_items_in_cart = PersonalizationRequest.objects.filter(
+                user=request.user,
+                status='order_accepted',
+                cart_quantity__gt=0
+            )
+            for req in personalized_items_in_cart:
+                OrderItem.objects.create(
+                    order=order,
+                    product=req.product,
+                    product_name=req.product.name,
+                    unit_price=req.product.price,
+                    quantity=req.cart_quantity,
+                    line_total=req.cart_total_price,
+                )
+                # reduce stock
+                req.product.stock = max(0, req.product.stock - req.cart_quantity)
+                req.product.save(update_fields=['stock'])
+                # Reset cart quantity after order creation
+                req.cart_quantity = 0
+                req.save(update_fields=['cart_quantity'])
             
         # Process wallet payment if used
         if wallet_amount_to_use > 0 and user_wallet:
@@ -658,9 +746,11 @@ def checkout(request):
         'regular_cart_items': regular_cart_items,
         'personalized_cart_items': personalized_cart_items,
         'personalization_items': personalization_items,
-        'cart_total': cart_total,
+        'cart_total': combined_cart_total,  # Use combined totals
         'upi_payment_methods': upi_payment_methods,
         'user_wallet': user_wallet,
+        'saved_addresses': saved_addresses,
+        'default_address': default_address,
     })
 
 class ProductForm(forms.ModelForm):
@@ -763,3 +853,126 @@ def ajax_customization_requests(request):
     requests = CustomizationRequest.objects.select_related('user', 'product').filter(status='pending').order_by('-created_at')
     html = render_to_string('store/_customization_requests_table.html', {'requests': requests})
     return JsonResponse({'html': html})
+
+@login_required
+def update_personalization_cart_quantity(request):
+    """Update quantity of personalized item in cart"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            request_id = data.get('request_id')
+            quantity = int(data.get('quantity', 0))
+            
+            personalization = get_object_or_404(PersonalizationRequest, id=request_id, user=request.user)
+            
+            if personalization.status != 'order_accepted':
+                return JsonResponse({'success': False, 'error': 'Item not in cart'})
+            
+            if quantity < 0:
+                return JsonResponse({'success': False, 'error': 'Quantity must be non-negative'})
+            
+            # Check stock availability
+            if quantity > personalization.product.stock:
+                return JsonResponse({
+                    'success': False, 
+                    'error': f'Insufficient stock. Available: {personalization.product.stock}'
+                })
+            
+            personalization.cart_quantity = quantity
+            personalization.save()
+            
+            # Calculate combined cart totals
+            from .cart_utils import get_cart_total
+            cart_total = get_cart_total(request)
+            
+            # Add personalized items to cart totals
+            personalized_total = Decimal('0.00')
+            personalized_count = 0
+            if request.user.is_authenticated:
+                personalized_requests = PersonalizationRequest.objects.filter(
+                    user=request.user,
+                    status='order_accepted',
+                    cart_quantity__gt=0
+                )
+                for req in personalized_requests:
+                    personalized_total += req.cart_total_price
+                    personalized_count += req.cart_quantity
+            
+            combined_cart_total = {
+                'total_price': float(cart_total['total_price'] + personalized_total),
+                'total_items': cart_total['total_items'] + personalized_count,
+                'item_count': cart_total['item_count'] + len([req for req in PersonalizationRequest.objects.filter(
+                    user=request.user,
+                    status='order_accepted',
+                    cart_quantity__gt=0
+                ) if request.user.is_authenticated])
+            }
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Quantity updated successfully',
+                'quantity': quantity,
+                'total_price': float(personalization.cart_total_price),
+                'item_removed': quantity == 0,
+                'combined_cart_total': combined_cart_total
+            })
+                
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+@login_required
+def remove_personalization_from_cart(request):
+    """Remove personalized item from cart"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            request_id = data.get('request_id')
+            
+            personalization = get_object_or_404(PersonalizationRequest, id=request_id, user=request.user)
+            
+            if personalization.status != 'order_accepted':
+                return JsonResponse({'success': False, 'error': 'Item not in cart'})
+            
+            # Set quantity to 0 to remove from cart but keep the personalization request
+            personalization.cart_quantity = 0
+            personalization.save()
+            
+            # Calculate combined cart totals
+            from .cart_utils import get_cart_total
+            cart_total = get_cart_total(request)
+            
+            # Add personalized items to cart totals
+            personalized_total = Decimal('0.00')
+            personalized_count = 0
+            if request.user.is_authenticated:
+                personalized_requests = PersonalizationRequest.objects.filter(
+                    user=request.user,
+                    status='order_accepted',
+                    cart_quantity__gt=0
+                )
+                for req in personalized_requests:
+                    personalized_total += req.cart_total_price
+                    personalized_count += req.cart_quantity
+            
+            combined_cart_total = {
+                'total_price': float(cart_total['total_price'] + personalized_total),
+                'total_items': cart_total['total_items'] + personalized_count,
+                'item_count': cart_total['item_count'] + len([req for req in PersonalizationRequest.objects.filter(
+                    user=request.user,
+                    status='order_accepted',
+                    cart_quantity__gt=0
+                ) if request.user.is_authenticated])
+            }
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Item removed from cart',
+                'combined_cart_total': combined_cart_total
+            })
+                
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})

@@ -70,11 +70,52 @@ class PersonalizationRequest(models.Model):
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
     admin_final_image = models.ImageField(upload_to='admin_final_designs/', blank=True, null=True)
     admin_notes = models.TextField(blank=True, null=True)
+    cart_quantity = models.PositiveIntegerField(default=0, help_text='Quantity in cart for order_accepted items')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name} ({self.status})"
+    
+    @property
+    def is_in_cart(self):
+        """Check if this personalization is in cart"""
+        return self.status == 'order_accepted' and self.cart_quantity > 0
+    
+    @property
+    def cart_total_price(self):
+        """Get total price for cart quantity"""
+        if self.is_in_cart:
+            return self.product.price * self.cart_quantity
+        return 0
+
+
+class UserAddress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+    full_name = models.CharField(max_length=120)
+    address_line1 = models.CharField(max_length=200)
+    address_line2 = models.CharField(max_length=200, blank=True, null=True)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20)
+    is_default = models.BooleanField(default=False, help_text='Default address for checkout')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'User Address'
+        verbose_name_plural = 'User Addresses'
+        ordering = ['-is_default', '-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.full_name} ({self.city})"
+    
+    def save(self, *args, **kwargs):
+        # Ensure only one default address per user
+        if self.is_default:
+            UserAddress.objects.filter(user=self.user, is_default=True).update(is_default=False)
+        super().save(*args, **kwargs)
 
 
 class Cart(models.Model):
@@ -221,7 +262,7 @@ class Wallet(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username}'s Wallet (${self.balance})"
+        return f"{self.user.username}'s Wallet (₹{self.balance})"
 
     def add_money(self, amount, description=""):
         """Add money to wallet with transaction record"""
@@ -271,7 +312,7 @@ class WalletTransaction(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.wallet.user.username} - {self.transaction_type} ${self.amount}"
+        return f"{self.wallet.user.username} - {self.transaction_type} ₹{self.amount}"
 
 
 class UPIPaymentMethod(models.Model):
@@ -295,6 +336,7 @@ class UPIPaymentMethod(models.Model):
 
 class Order(models.Model):
     ORDER_STATUS_CHOICES = [
+        ('pending', 'Pending Payment Approval'),
         ('processing', 'Processing'),
         ('shipped', 'Shipped'),
         ('delivered', 'Delivered'),
@@ -359,11 +401,15 @@ class Order(models.Model):
             self.save()
     
     def mark_as_delivered(self):
-        """Mark order as delivered"""
+        """Mark order as delivered and clean up personalized items from cart"""
         if self.status == 'shipped':
             self.status = 'delivered'
             self.delivered_at = timezone.now()
             self.save()
+            
+            # Remove personalized items from cart when order is delivered
+            if self.user:
+                self._cleanup_personalized_cart_items()
     
     def get_status_badge_class(self):
         """Get CSS class for status badge"""
@@ -374,6 +420,61 @@ class Order(models.Model):
             'cancelled': 'bg-danger',
         }
         return status_classes.get(self.status, 'bg-secondary')
+    
+    def _cleanup_personalized_cart_items(self):
+        """Remove personalized items from cart when order is delivered"""
+        from .models import Cart, CartItem, PersonalizationRequest
+        
+        try:
+            # Get user's cart
+            cart = Cart.objects.get(user=self.user)
+            
+            # Get all order items for this order
+            order_product_ids = list(self.items.values_list('product_id', flat=True))
+            
+            # Find personalization requests for products in this order
+            personalized_requests = PersonalizationRequest.objects.filter(
+                user=self.user,
+                product_id__in=order_product_ids,
+                status='order_accepted'
+            )
+            
+            # Remove corresponding cart items
+            for request in personalized_requests:
+                CartItem.objects.filter(
+                    cart=cart,
+                    product=request.product
+                ).delete()
+                
+        except Cart.DoesNotExist:
+            pass  # No cart exists, nothing to clean up
+    
+    def get_personalization_images(self):
+        """Get personalization images specific to this order"""
+        personalization_data = []
+        
+        for item in self.items.all():
+            # Only show personalization details if user has exactly one 'order_accepted' 
+            # personalization for this product to avoid showing wrong personalizations
+            personalizations = PersonalizationRequest.objects.filter(
+                user=self.user,
+                product=item.product,
+                status='order_accepted'
+            )
+            
+            # Only show if there's exactly one personalization for this product
+            # This ensures we don't show personalizations from other orders
+            if personalizations.count() == 1:
+                personalization = personalizations.first()
+                personalization_data.append({
+                    'product_name': item.product_name,
+                    'user_image': personalization.uploaded_image,
+                    'admin_image': personalization.admin_final_image,
+                    'admin_notes': personalization.admin_notes,
+                    'request_id': personalization.id
+                })
+        
+        return personalization_data
 
     def process_return(self, reason=""):
         """Process order return and add refund to user's wallet"""

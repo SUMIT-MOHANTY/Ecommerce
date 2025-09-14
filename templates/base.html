@@ -288,8 +288,113 @@
     </main>
     <!-- Footer -->
     <footer class="footer mt-5">
-        <div class="container text-center">
-            <p class="mb-0">&copy; 2024 Customize Clothing. All rights reserved.</p>
+        <div class="container">
+            <!-- Main Footer Content -->
+            <div class="row g-4 mb-4">
+                <!-- Company Info -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-shopping-bag me-2" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+                        <h5 class="mb-0" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;">Customize Clothing</h5>
+                    </div>
+                    <p class="text-light mb-3" style="color: rgba(255,255,255,0.8) !important; line-height: 1.6;">Transform your style with our premium custom clothing collection. Quality fabrics, unique designs, and personalized fashion for every occasion.</p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-decoration-none" style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.1)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
+                            <i class="fab fa-facebook-f" style="color: white; font-size: 1.1rem;"></i>
+                        </a>
+                        <a href="#" class="text-decoration-none" style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.1)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
+                            <i class="fab fa-instagram" style="color: white; font-size: 1.1rem;"></i>
+                        </a>
+                        <a href="#" class="text-decoration-none" style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.1)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
+                            <i class="fab fa-twitter" style="color: white; font-size: 1.1rem;"></i>
+                        </a>
+                        <a href="#" class="text-decoration-none" style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.1)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
+                            <i class="fab fa-whatsapp" style="color: white; font-size: 1.1rem;"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="mb-3" style="color: var(--primary-color); font-weight: 600; font-size: 1.1rem;">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{% url 'store:home' %}" class="text-decoration-none" style="color: rgba(255,255,255,0.8); transition: all 0.3s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'"><i class="fas fa-chevron-right me-2" style="font-size: 0.8rem;"></i>Home</a></li>
+                        <li class="mb-2"><a href="{% url 'store:all_products' %}" class="text-decoration-none" style="color: rgba(255,255,255,0.8); transition: all 0.3s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'"><i class="fas fa-chevron-right me-2" style="font-size: 0.8rem;"></i>All Products</a></li>
+                        <li class="mb-2"><a href="{% url 'store:personalize_products' %}" class="text-decoration-none" style="color: rgba(255,255,255,0.8); transition: all 0.3s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'"><i class="fas fa-chevron-right me-2" style="font-size: 0.8rem;"></i>Personalize</a></li>
+                        <li class="mb-2"><a href="{% url 'store:cart' %}" class="text-decoration-none" style="color: rgba(255,255,255,0.8); transition: all 0.3s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'"><i class="fas fa-chevron-right me-2" style="font-size: 0.8rem;"></i>Cart</a></li>
+                        {% if user.is_authenticated %}
+                        <li class="mb-2"><a href="{% url 'accounts:my_orders' %}" class="text-decoration-none" style="color: rgba(255,255,255,0.8); transition: all 0.3s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'"><i class="fas fa-chevron-right me-2" style="font-size: 0.8rem;"></i>My Orders</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <!-- Customer Service -->
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="mb-3" style="color: var(--primary-color); font-weight: 600; font-size: 1.1rem;">Customer Service</h6>
+                    <div class="d-flex align-items-center mb-2">
+                        <div style="width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                            <i class="fas fa-envelope" style="color: white; font-size: 0.9rem;"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0" style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Email Support</p>
+                            <a href="mailto:support@customizeclothing.com" class="text-decoration-none" style="color: var(--primary-color); font-weight: 500; font-size: 0.9rem;">support@customizeclothing.com</a>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div style="width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                            <i class="fas fa-phone" style="color: white; font-size: 0.9rem;"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0" style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Phone Support</p>
+                            <a href="tel:+919876543210" class="text-decoration-none" style="color: var(--primary-color); font-weight: 500; font-size: 0.9rem;">+91 98765 43210</a>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div style="width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                            <i class="fas fa-clock" style="color: white; font-size: 0.9rem;"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0" style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Support Hours</p>
+                            <p class="mb-0" style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">Mon-Sat, 9AM-7PM</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Newsletter -->
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="mb-3" style="color: var(--primary-color); font-weight: 600; font-size: 1.1rem;">Stay Updated</h6>
+                    <p class="mb-3" style="color: rgba(255,255,255,0.8); font-size: 0.9rem; line-height: 1.5;">Subscribe for exclusive offers and latest fashion trends.</p>
+                    <form class="mb-3">
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="Your email" style="border: none; border-radius: 25px 0 0 25px; padding: 0.75rem 1rem; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);" onchange="this.style.background='rgba(255,255,255,0.15)'">
+                            <button class="btn" type="submit" style="border-radius: 0 25px 25px 0; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border: none; padding: 0.75rem 1.25rem; font-weight: 600;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div class="d-flex align-items-center" style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        <span>Privacy protected. No spam.</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer Bottom -->
+            <div class="border-top pt-4" style="border-color: rgba(255,255,255,0.1) !important;">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="mb-0" style="color: rgba(255,255,255,0.8);">&copy; 2024 Customize Clothing. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                        <div class="d-flex align-items-center justify-content-md-end gap-3">
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="fas fa-map-marker-alt" style="color: var(--primary-color);"></i>
+                                <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">Linking Road, Bandra, Mumbai</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

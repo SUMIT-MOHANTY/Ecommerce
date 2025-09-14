@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views import View
+from decimal import Decimal
 import json
 
 from .models import Product, Cart, CartItem, PersonalizationRequest
@@ -21,15 +22,30 @@ def cart_page(request):
     
     # Get personalization requests for the user
     personalization_requests = []
+    personalization_cart_total = Decimal('0.00')
     if request.user.is_authenticated:
         personalization_requests = PersonalizationRequest.objects.filter(
             user=request.user,
             status__in=['pending', 'admin_approved', 'user_approved', 'order_accepted']
         ).select_related('product').order_by('-created_at')
+        
+        # Calculate total for personalized items in cart
+        for req in personalization_requests:
+            if req.is_in_cart:
+                personalization_cart_total += req.cart_total_price
+    
+    # Calculate combined totals
+    combined_cart_total = {
+        'total_price': cart_total['total_price'] + personalization_cart_total,
+        'total_items': cart_total['total_items'] + sum(req.cart_quantity for req in personalization_requests if req.is_in_cart),
+        'item_count': cart_total['item_count'] + sum(1 for req in personalization_requests if req.is_in_cart)
+    }
     
     context = {
         'cart_items': cart_items,
-        'cart_total': cart_total,
+        'cart_total': combined_cart_total,
+        'regular_cart_total': cart_total,
+        'personalization_cart_total': personalization_cart_total,
         'personalization_requests': personalization_requests,
     }
     return render(request, 'store/cart.html', context)
@@ -248,9 +264,17 @@ def cart_count(request):
     try:
         cart_total = get_cart_total(request)
         
-        # Only count actual cart items, not personalization requests
-        # Personalization requests are displayed separately in cart
-        total_count = cart_total['total_items']
+        # Add personalized items to cart count
+        personalized_count = 0
+        if request.user.is_authenticated:
+            personalized_requests = PersonalizationRequest.objects.filter(
+                user=request.user,
+                status='order_accepted',
+                cart_quantity__gt=0
+            )
+            personalized_count = sum(req.cart_quantity for req in personalized_requests)
+        
+        total_count = cart_total['total_items'] + personalized_count
         
         return JsonResponse({
             'success': True,
