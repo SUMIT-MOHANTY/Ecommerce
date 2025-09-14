@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Return Request - Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="card mb-4" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-undo-alt me-3" style="font-size: 2rem; color: var(--primary-color);"></i>
+                        <div>
+                            <h2 class="mb-1">Return Request</h2>
+                            <p class="text-muted mb-0">Order #{{ order.id }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <p><strong>Order Date:</strong> {{ order.created_at|date:"M d, Y" }}</p>
+                            <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Status:</strong> 
+                                <span class="badge {{ order.get_status_badge_class }}">{{ order.get_status_display }}</span>
+                            </p>
+                            <p><strong>Delivered:</strong> {{ order.delivered_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Return Form -->
+            <div class="card" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <div class="card-body p-4">
+                    <h4 class="mb-4">Why do you want to return this order?</h4>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Return Reason -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Select Reason for Return:</label>
+                            <div class="row g-2">
+                                {% for value, label in return_reasons %}
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="reason" value="{{ value }}" id="reason_{{ value }}" required>
+                                        <label class="form-check-label" for="reason_{{ value }}">
+                                            <i class="fas fa-circle-dot me-2" style="color: var(--primary-color);"></i>
+                                            {{ label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Additional Description -->
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-bold">Additional Details (Optional):</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Please provide any additional details about your return request..."></textarea>
+                        </div>
+
+                        <!-- Important Information -->
+                        <div class="alert alert-info" style="border-radius: 12px; background: linear-gradient(135deg, #e3f2fd, #f3e5f5);">
+                            <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Important Information</h6>
+                            <ul class="mb-0">
+                                <li>Your return request will be reviewed by our team within 24-48 hours.</li>
+                                <li>Once approved, the refund amount will be added to your wallet.</li>
+                                <li>You can use wallet balance for future purchases.</li>
+                                <li>Return requests are subject to our return policy terms.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="submit" class="btn btn-primary px-4 py-2" style="border-radius: 25px;">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Return Request
+                            </button>
+                            <a href="{% url 'store:order_detail' order.id %}" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 25px;">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Order
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-check {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+}
+
+.form-check:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+}
+
+.form-check-input:checked + .form-check-label {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-control {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(34, 197, 94, 0.1);
+}
+</style>
+{% endblock %}

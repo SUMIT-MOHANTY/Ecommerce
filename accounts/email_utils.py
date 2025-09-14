@@ -169,3 +169,22 @@ def send_personalization_update_email(personalization, status):
     except Exception as e:
         logger.error(f"Failed to send personalization update to {personalization.user.email}: {str(e)}")
         return False
+
+
+def send_email(to_email, subject, message):
+    """Send a simple text/html email"""
+    try:
+        msg = EmailMultiAlternatives(
+            subject=subject,
+            body=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[to_email]
+        )
+        msg.attach_alternative(message, "text/html")
+        msg.send()
+        
+        logger.info(f"Email sent to {to_email}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send email to {to_email}: {str(e)}")
+        return False

@@ -59,4 +59,7 @@ urlpatterns = [
     path('shopadmin/edit-category/<int:category_id>/', views.edit_category, name='edit_category'),
     path('shopadmin/delete-category/<int:category_id>/', views.delete_category, name='delete_category'),
     path('shopadmin/ajax-requests/', views.ajax_customization_requests, name='ajax_customization_requests'),
+    # Return request URLs
+    path('return-request/<int:order_id>/', views.request_return, name='request_return'),
+    path('return-status/<int:order_id>/', views.return_status, name='return_status'),
 ] 

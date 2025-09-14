@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Return Status - Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="card mb-4" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-clipboard-check me-3" style="font-size: 2rem; color: var(--primary-color);"></i>
+                        <div>
+                            <h2 class="mb-1">Return Request Status</h2>
+                            <p class="text-muted mb-0">Order #{{ order.id }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Return Status -->
+            <div class="card mb-4" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Return Information</h5>
+                            <div class="mb-3">
+                                <strong>Status:</strong>
+                                {% if return_request.status == 'pending' %}
+                                    <span class="badge bg-warning ms-2">
+                                        <i class="fas fa-clock me-1"></i>Pending Review
+                                    </span>
+                                {% elif return_request.status == 'approved' %}
+                                    <span class="badge bg-success ms-2">
+                                        <i class="fas fa-check me-1"></i>Approved
+                                    </span>
+                                {% elif return_request.status == 'rejected' %}
+                                    <span class="badge bg-danger ms-2">
+                                        <i class="fas fa-times me-1"></i>Rejected
+                                    </span>
+                                {% elif return_request.status == 'completed' %}
+                                    <span class="badge bg-primary ms-2">
+                                        <i class="fas fa-check-double me-1"></i>Refund Completed
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Reason:</strong> {{ return_request.get_reason_display }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Requested Date:</strong> {{ return_request.requested_at|date:"M d, Y H:i" }}
+                            </div>
+                            {% if return_request.approved_at %}
+                            <div class="mb-3">
+                                <strong>Approved Date:</strong> {{ return_request.approved_at|date:"M d, Y H:i" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Refund Details</h5>
+                            {% if return_request.status == 'completed' %}
+                            <div class="alert alert-success" style="border-radius: 12px;">
+                                <i class="fas fa-wallet me-2"></i>
+                                <strong>Refund Amount: ₹{{ return_request.refund_amount }}</strong><br>
+                                <small>Added to your wallet on {{ return_request.completed_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                            {% elif return_request.status == 'approved' %}
+                            <div class="alert alert-info" style="border-radius: 12px;">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Your return has been approved. Refund is being processed.
+                            </div>
+                            {% elif return_request.status == 'pending' %}
+                            <div class="alert alert-warning" style="border-radius: 12px;">
+                                <i class="fas fa-clock me-2"></i>
+                                Your return request is under review. We'll notify you once it's processed.
+                            </div>
+                            {% elif return_request.status == 'rejected' %}
+                            <div class="alert alert-danger" style="border-radius: 12px;">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Your return request was not approved.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request Details -->
+            <div class="card mb-4" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <div class="card-body p-4">
+                    <h5 class="mb-3">Request Details</h5>
+                    {% if return_request.description %}
+                    <div class="mb-3">
+                        <strong>Your Message:</strong>
+                        <p class="mt-2 p-3 bg-light rounded">{{ return_request.description }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if return_request.admin_notes %}
+                    <div class="mb-3">
+                        <strong>Admin Response:</strong>
+                        <p class="mt-2 p-3 bg-primary bg-opacity-10 rounded">{{ return_request.admin_notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="card" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <div class="card-body p-4">
+                    <h5 class="mb-4">Return Timeline</h5>
+                    <div class="timeline">
+                        <!-- Request Submitted -->
+                        <div class="timeline-item completed">
+                            <div class="timeline-marker">
+                                <i class="fas fa-paper-plane"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Return Request Submitted</h6>
+                                <p class="text-muted mb-0">{{ return_request.requested_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Under Review -->
+                        <div class="timeline-item {% if return_request.status != 'pending' %}completed{% else %}active{% endif %}">
+                            <div class="timeline-marker">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Under Review</h6>
+                                <p class="text-muted mb-0">Our team is reviewing your request</p>
+                            </div>
+                        </div>
+
+                        <!-- Approved/Rejected -->
+                        {% if return_request.status == 'approved' or return_request.status == 'completed' %}
+                        <div class="timeline-item completed">
+                            <div class="timeline-marker">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Request Approved</h6>
+                                <p class="text-muted mb-0">{{ return_request.approved_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                        </div>
+                        {% elif return_request.status == 'rejected' %}
+                        <div class="timeline-item rejected">
+                            <div class="timeline-marker">
+                                <i class="fas fa-times"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Request Rejected</h6>
+                                <p class="text-muted mb-0">Your return request was not approved</p>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="timeline-item pending">
+                            <div class="timeline-marker">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Awaiting Decision</h6>
+                                <p class="text-muted mb-0">Decision pending</p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Refund Completed -->
+                        {% if return_request.status == 'completed' %}
+                        <div class="timeline-item completed">
+                            <div class="timeline-marker">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Refund Completed</h6>
+                                <p class="text-muted mb-0">₹{{ return_request.refund_amount }} added to wallet - {{ return_request.completed_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'store:order_detail' order.id %}" class="btn btn-primary px-4 py-2" style="border-radius: 25px;">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Order Details
+                </a>
+                {% if return_request.status == 'completed' %}
+                <a href="{% url 'store:wallet' %}" class="btn btn-outline-primary px-4 py-2 ms-2" style="border-radius: 25px;">
+                    <i class="fas fa-wallet me-2"></i>View Wallet
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #28a745, #e9ecef);
+    border-radius: 2px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 2.5rem;
+    margin-left: 1rem;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -1.75rem;
+    top: 0.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    z-index: 2;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    border-left: 4px solid #e9ecef;
+    margin-top: 0.25rem;
+}
+
+.timeline-item.completed .timeline-marker {
+    background: #28a745;
+    color: white;
+}
+
+.timeline-item.completed .timeline-content {
+    border-left-color: #28a745;
+    background: #f8fff9;
+}
+
+.timeline-item.active .timeline-marker {
+    background: #ffc107;
+    color: #212529;
+}
+
+.timeline-item.active .timeline-content {
+    border-left-color: #ffc107;
+    background: #fffef5;
+}
+
+.timeline-item.pending .timeline-marker {
+    background: #6c757d;
+    color: white;
+}
+
+.timeline-item.pending .timeline-content {
+    border-left-color: #6c757d;
+    background: #f8f9fa;
+}
+
+.timeline-item.rejected .timeline-marker {
+    background: #dc3545;
+    color: white;
+}
+
+.timeline-item.rejected .timeline-content {
+    border-left-color: #dc3545;
+    background: #fef8f8;
+}
+
+.timeline-content h6 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.timeline-content p {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .timeline::before {
+        left: 0.75rem;
+        width: 2px;
+    }
+    
+    .timeline-item {
+        margin-left: 0.75rem;
+    }
+    
+    .timeline-marker {
+        left: -1.5rem;
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.8rem;
+    }
+    
+    .timeline-content {
+        padding: 0.75rem 1rem;
+    }
+    
+    .timeline-content h6 {
+        font-size: 0.95rem;
+    }
+    
+    .timeline-content p {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-body {
+        padding: 1rem !important;
+    }
+    
+    .timeline {
+        padding-left: 1rem;
+    }
+    
+    .timeline-item {
+        margin-left: 0.5rem;
+    }
+    
+    .timeline-marker {
+        left: -1.25rem;
+        width: 1.75rem;
+        height: 1.75rem;
+        font-size: 0.7rem;
+    }
+    
+    .timeline-content {
+        padding: 0.5rem 0.75rem;
+    }
+}
+</style>
+{% endblock %}

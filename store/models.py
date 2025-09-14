@@ -389,7 +389,14 @@ class Order(models.Model):
     @property
     def can_be_returned(self):
         """Check if order can be returned"""
-        return self.status == 'delivered' and not self.is_returned
+        return (self.status == 'delivered' and not self.is_returned and 
+                not hasattr(self, 'return_request'))
+    
+    @property
+    def has_pending_return(self):
+        """Check if order has a pending return request"""
+        return (hasattr(self, 'return_request') and 
+                self.return_request.status == 'pending')
     
     def mark_as_shipped(self, tracking_number=None):
         """Mark order as shipped"""
@@ -498,6 +505,82 @@ class Order(models.Model):
                 refund_amount,
                 f"Refund for returned Order #{self.id}"
             )
+
+
+class ReturnRequest(models.Model):
+    RETURN_STATUS_CHOICES = [
+        ('pending', 'Pending Admin Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('completed', 'Refund Completed'),
+    ]
+    
+    RETURN_REASON_CHOICES = [
+        ('defective', 'Product is Defective'),
+        ('wrong_item', 'Wrong Item Delivered'),
+        ('not_as_described', 'Not as Described'),
+        ('size_issue', 'Size Issue'),
+        ('quality_issue', 'Quality Issue'),
+        ('changed_mind', 'Changed Mind'),
+        ('other', 'Other'),
+    ]
+    
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='return_request')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reason = models.CharField(max_length=20, choices=RETURN_REASON_CHOICES)
+    description = models.TextField(blank=True, help_text='Additional details about the return')
+    status = models.CharField(max_length=15, choices=RETURN_STATUS_CHOICES, default='pending')
+    refund_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    admin_notes = models.TextField(blank=True, help_text='Admin notes for this return request')
+    requested_at = models.DateTimeField(auto_now_add=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-requested_at']
+    
+    def __str__(self):
+        return f"Return Request for Order #{self.order.id} - {self.status}"
+    
+    def approve_return(self, admin_notes=""):
+        """Approve return request and process refund to wallet"""
+        if self.status != 'pending':
+            raise ValueError("Return request is not in pending status")
+        
+        with transaction.atomic():
+            # Update return request status
+            self.status = 'approved'
+            self.approved_at = timezone.now()
+            self.admin_notes = admin_notes
+            self.refund_amount = self.order.total_amount
+            self.save()
+            
+            # Update order status
+            self.order.is_returned = True
+            self.order.return_reason = self.get_reason_display()
+            self.order.returned_at = timezone.now()
+            self.order.save()
+            
+            # Add refund to user's wallet
+            wallet, created = Wallet.objects.get_or_create(user=self.user)
+            wallet.add_money(
+                self.refund_amount,
+                f"Refund for returned Order #{self.order.id} - {self.get_reason_display()}"
+            )
+            
+            # Mark as completed
+            self.status = 'completed'
+            self.completed_at = timezone.now()
+            self.save()
+    
+    def reject_return(self, admin_notes=""):
+        """Reject return request"""
+        if self.status != 'pending':
+            raise ValueError("Return request is not in pending status")
+        
+        self.status = 'rejected'
+        self.admin_notes = admin_notes
+        self.save()
 
 
 class OrderItem(models.Model):

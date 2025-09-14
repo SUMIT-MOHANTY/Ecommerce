@@ -363,6 +363,53 @@
         </div>
         {% endif %}
 
+        <!-- Return Section -->
+        {% if order.can_be_returned %}
+        <div class="detail-card p-4">
+          <h5><i class="fas fa-undo-alt me-2"></i>Return Order</h5>
+          <div class="alert alert-info" style="border-radius: 12px; background: linear-gradient(135deg, #e3f2fd, #f3e5f5);">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Return Policy:</strong> You can return this order within our return policy guidelines. Once approved, the refund will be added to your wallet.
+          </div>
+          <div class="text-center mt-3">
+            <a href="{% url 'store:request_return' order.id %}" class="btn btn-warning px-4 py-2" style="border-radius: 25px;">
+              <i class="fas fa-undo-alt me-2"></i>Request Return
+            </a>
+          </div>
+        </div>
+        {% elif order.has_pending_return %}
+        <div class="detail-card p-4">
+          <h5><i class="fas fa-clock me-2"></i>Return Status</h5>
+          <div class="alert alert-warning" style="border-radius: 12px;">
+            <i class="fas fa-clock me-2"></i>
+            <strong>Return Request Pending:</strong> Your return request is being reviewed by our team. You will be notified once it's processed.
+          </div>
+          <div class="text-center mt-3">
+            <a href="{% url 'store:return_status' order.id %}" class="btn btn-outline-primary px-4 py-2" style="border-radius: 25px;">
+              <i class="fas fa-eye me-2"></i>View Return Status
+            </a>
+          </div>
+        </div>
+        {% elif order.is_returned %}
+        <div class="detail-card p-4">
+          <h5><i class="fas fa-check-circle me-2"></i>Order Returned</h5>
+          <div class="alert alert-success" style="border-radius: 12px;">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>Return Completed:</strong> This order has been returned successfully.
+            {% if order.return_request and order.return_request.status == 'completed' %}
+            Refund of ₹{{ order.return_request.refund_amount }} has been added to your wallet.
+            {% endif %}
+          </div>
+          {% if order.return_request %}
+          <div class="text-center mt-3">
+            <a href="{% url 'store:return_status' order.id %}" class="btn btn-outline-success px-4 py-2" style="border-radius: 25px;">
+              <i class="fas fa-eye me-2"></i>View Return Details
+            </a>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
         <!-- Back Button -->
         <div class="text-center">
           <a href="{% url 'accounts:my_orders' %}" class="back-button">

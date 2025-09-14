@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test, login_required
-from .models import Product, CustomizationRequest, Category, PersonalizationRequest, Order, OrderItem, Wallet, WalletTransaction, UPIPaymentMethod, UserAddress
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Product, CustomizationRequest, Category, PersonalizationRequest, Order, OrderItem, Wallet, WalletTransaction, UPIPaymentMethod, UserAddress, ReturnRequest
 from .cart_utils import get_cart_items, get_cart_total, clear_cart
 from django import forms
 from django.template.loader import render_to_string
@@ -976,3 +978,59 @@ def remove_personalization_from_cart(request):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@login_required
+def request_return(request, order_id):
+    """Submit a return request for an order"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # Check if order can be returned
+    if not order.can_be_returned:
+        messages.error(request, 'This order cannot be returned.')
+        return redirect('store:order_detail', order_id=order.id)
+    
+    if request.method == 'POST':
+        reason = request.POST.get('reason')
+        description = request.POST.get('description', '')
+        
+        if not reason:
+            messages.error(request, 'Please select a reason for return.')
+            return redirect('store:order_detail', order_id=order.id)
+        
+        try:
+            # Create return request
+            return_request = ReturnRequest.objects.create(
+                order=order,
+                user=request.user,
+                reason=reason,
+                description=description
+            )
+            
+            messages.success(request, 'Return request submitted successfully. You will be notified once it is reviewed by our team.')
+            return redirect('store:order_detail', order_id=order.id)
+            
+        except Exception as e:
+            messages.error(request, f'Error submitting return request: {str(e)}')
+            return redirect('store:order_detail', order_id=order.id)
+    
+    # GET request - show return form
+    return render(request, 'store/return_request.html', {
+        'order': order,
+        'return_reasons': ReturnRequest.RETURN_REASON_CHOICES
+    })
+
+
+@login_required
+def return_status(request, order_id):
+    """View return request status"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    if not hasattr(order, 'return_request'):
+        messages.error(request, 'No return request found for this order.')
+        return redirect('store:order_detail', order_id=order.id)
+    
+    return render(request, 'store/return_status.html', {
+        'order': order,
+        'return_request': order.return_request
+    })

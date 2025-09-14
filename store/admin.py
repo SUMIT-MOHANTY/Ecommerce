@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Product, CustomizationRequest, Category, Cart, CartItem, PersonalizationRequest, Order, OrderItem, Wallet, WalletTransaction, UPIPaymentMethod
+from .models import Product, CustomizationRequest, Category, Cart, CartItem, PersonalizationRequest, Order, OrderItem, Wallet, WalletTransaction, UPIPaymentMethod, ReturnRequest
 
 class CategoryInline(admin.TabularInline):
     model = Category
@@ -161,19 +161,104 @@ class WalletTransactionAdmin(admin.ModelAdmin):
     wallet_user.short_description = 'User'
 
 
-def process_order_return(modeladmin, request, queryset):
-    """Admin action to process order returns"""
-    for order in queryset:
-        if not order.is_returned and order.user:
+def approve_return_requests(modeladmin, request, queryset):
+    """Admin action to approve return requests and process refunds"""
+    from accounts.email_utils import send_email
+    
+    approved = 0
+    for return_request in queryset:
+        if return_request.status == 'pending':
             try:
-                order.process_return("Processed by admin")
-                modeladmin.message_user(request, f"Order #{order.id} return processed successfully.")
-            except ValueError as e:
-                modeladmin.message_user(request, f"Error processing return for Order #{order.id}: {str(e)}", level='ERROR')
-        else:
-            modeladmin.message_user(request, f"Order #{order.id} cannot be returned.", level='WARNING')
+                return_request.approve_return("Approved by admin")
+                approved += 1
+                
+                # Send notification email to customer
+                if return_request.user.email:
+                    subject = f"Return Request Approved - Order #{return_request.order.id}"
+                    message = f"""Dear {return_request.user.username},
 
-process_order_return.short_description = "Process selected order returns"
+Your return request for Order #{return_request.order.id} has been approved.
+
+Refund Amount: ₹{return_request.refund_amount}
+The refund has been added to your wallet.
+
+Thank you for shopping with us!
+
+Best regards,
+Customize Clothing Team"""
+                    
+                    send_email(return_request.user.email, subject, message)
+                    
+            except Exception as e:
+                modeladmin.message_user(request, f"Error processing return request #{return_request.id}: {str(e)}", level='ERROR')
+    
+    if approved > 0:
+        modeladmin.message_user(request, f"Successfully approved {approved} return request(s) and processed refunds to wallets.")
+    else:
+        modeladmin.message_user(request, "No return requests were approved. Only pending requests can be approved.", level='WARNING')
+
+approve_return_requests.short_description = "Approve selected return requests and process refunds"
+
+
+def reject_return_requests(modeladmin, request, queryset):
+    """Admin action to reject return requests"""
+    from accounts.email_utils import send_email
+    
+    rejected = 0
+    for return_request in queryset:
+        if return_request.status == 'pending':
+            try:
+                return_request.reject_return("Rejected by admin - does not meet return policy criteria")
+                rejected += 1
+                
+                # Send notification email to customer
+                if return_request.user.email:
+                    subject = f"Return Request Update - Order #{return_request.order.id}"
+                    message = f"""Dear {return_request.user.username},
+
+We have reviewed your return request for Order #{return_request.order.id}.
+
+Unfortunately, we cannot approve this return request as it does not meet our return policy criteria.
+
+If you have any questions, please contact our customer support.
+
+Best regards,
+Customize Clothing Team"""
+                    
+                    send_email(return_request.user.email, subject, message)
+                    
+            except Exception as e:
+                modeladmin.message_user(request, f"Error rejecting return request #{return_request.id}: {str(e)}", level='ERROR')
+    
+    if rejected > 0:
+        modeladmin.message_user(request, f"Successfully rejected {rejected} return request(s).")
+    else:
+        modeladmin.message_user(request, "No return requests were rejected. Only pending requests can be rejected.", level='WARNING')
+
+reject_return_requests.short_description = "Reject selected return requests"
+
+
+@admin.register(ReturnRequest)
+class ReturnRequestAdmin(admin.ModelAdmin):
+    list_display = ('order', 'user', 'reason', 'status', 'refund_amount', 'requested_at', 'completed_at')
+    list_filter = ('status', 'reason', 'requested_at')
+    search_fields = ('order__id', 'user__username', 'description')
+    readonly_fields = ('requested_at', 'approved_at', 'completed_at')
+    actions = [approve_return_requests, reject_return_requests]
+    
+    fieldsets = (
+        ('Return Request Information', {
+            'fields': ('order', 'user', 'reason', 'description', 'status')
+        }),
+        ('Refund Details', {
+            'fields': ('refund_amount', 'admin_notes')
+        }),
+        ('Timestamps', {
+            'fields': ('requested_at', 'approved_at', 'completed_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
 
 
 def approve_upi_orders(modeladmin, request, queryset):
@@ -241,7 +326,7 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ('id', 'user__username', 'full_name', 'phone', 'tracking_number')
     readonly_fields = ('created_at', 'updated_at', 'shipped_at', 'delivered_at')
     inlines = [OrderItemInline]
-    actions = [approve_upi_orders, process_order_return, mark_orders_as_shipped, mark_orders_as_delivered]
+    actions = [approve_upi_orders, mark_orders_as_shipped, mark_orders_as_delivered]
 
     fieldsets = (
         ('Customer', {
