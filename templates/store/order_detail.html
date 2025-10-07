@@ -287,6 +287,21 @@
               <div class="info-label">Total Amount</div>
               <div class="info-value"><strong>₹{{ order.total_amount }}</strong></div>
             </div>
+            {% if order.tracking_number or order.tracking_url %}
+            <div class="info-item">
+              <div class="info-label">Tracking</div>
+              <div class="info-value">
+                {% if order.tracking_number %}
+                  <div>Number: {{ order.tracking_number }}</div>
+                {% endif %}
+                {% if order.tracking_url %}
+                  <a href="{{ order.tracking_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary mt-2" style="border-radius: 20px;">
+                    <i class="fas fa-external-link-alt me-1"></i>Open Carrier Tracking
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
           </div>
         </div>
 

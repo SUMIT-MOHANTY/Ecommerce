@@ -339,7 +339,7 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': ('payment_method', 'upi_provider', 'total_amount', 'wallet_amount_used', 'remaining_amount', 'delivery_date')
         }),
         ('Order Status & Tracking', {
-            'fields': ('status', 'tracking_number', 'shipped_at', 'delivered_at')
+            'fields': ('status', 'tracking_number', 'tracking_url', 'shipped_at', 'delivered_at')
         }),
         ('Return Information', {
             'fields': ('is_returned', 'return_reason', 'returned_at'),

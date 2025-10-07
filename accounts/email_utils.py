@@ -13,10 +13,10 @@ def send_welcome_email(user):
         return False
         
     try:
-        subject = 'Welcome to Customize Clothing!'
+        subject = 'Welcome to Customise Clothing!'
         html_content = render_to_string('emails/welcome.html', {
             'user': user,
-            'site_name': 'Customize Clothing'
+            'site_name': 'Customise Clothing'
         })
         text_content = strip_tags(html_content)
         
@@ -51,12 +51,12 @@ def send_login_notification_email(user, request):
         # Get user agent
         user_agent = request.META.get('HTTP_USER_AGENT', 'Unknown')
         
-        subject = 'Login Alert - Customize Clothing'
+        subject = 'Login Alert - Customise Clothing'
         html_content = render_to_string('emails/login_notification.html', {
             'user': user,
             'ip_address': ip_address,
             'user_agent': user_agent,
-            'site_name': 'Customize Clothing'
+            'site_name': 'Customise Clothing'
         })
         text_content = strip_tags(html_content)
         
@@ -85,7 +85,7 @@ def send_order_confirmation_email(order):
         html_content = render_to_string('emails/order_confirmation.html', {
             'order': order,
             'user': order.user,
-            'site_name': 'Customize Clothing'
+            'site_name': 'Customise Clothing'
         })
         text_content = strip_tags(html_content)
         
@@ -115,7 +115,7 @@ def send_order_status_update_email(order, status_message):
             'order': order,
             'user': order.user,
             'status_message': status_message,
-            'site_name': 'Customize Clothing'
+            'site_name': 'Customise Clothing'
         })
         text_content = strip_tags(html_content)
         
@@ -143,7 +143,7 @@ def send_personalization_update_email(personalization, status):
         status_messages = {
             'admin_approved': 'Your customization request has been approved by our team!',
             'rejected': 'Unfortunately, your customization request could not be approved.',
-            'order_accepted': 'Your customized item has been added to your cart!'
+            'order_accepted': 'Your customised item has been added to your cart!'
         }
         
         subject = f'Customization Update - {personalization.product.name}'
@@ -151,7 +151,7 @@ def send_personalization_update_email(personalization, status):
             'personalization': personalization,
             'user': personalization.user,
             'status_message': status_messages.get(status, f'Status updated to: {status}'),
-            'site_name': 'Customize Clothing'
+            'site_name': 'Customise Clothing'
         })
         text_content = strip_tags(html_content)
         

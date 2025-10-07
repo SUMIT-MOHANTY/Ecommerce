@@ -160,6 +160,13 @@
                 <p class="mb-0"><strong>Total:</strong> ₹{{ order.total_amount }}</p>
               </div>
             </div>
+            {% if order.tracking_url %}
+            <div class="mt-2">
+              <a href="{{ order.tracking_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-external-link-alt me-1"></i>Open Carrier Tracking
+              </a>
+            </div>
+            {% endif %}
             
             {% if order.payment_method == 'upi' and order.status == 'pending' %}
             <div class="alert alert-warning mt-3">

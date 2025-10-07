@@ -782,7 +782,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       // Generate dynamic QR code with UPI URL
       const amount = baseTotal - currentWalletAmount;
-      const upiUrl = `upi://pay?pa=${selectedMethod.upi_id}&pn=CustomizeClothing&am=${amount}&cu=INR`;
+      const upiUrl = `upi://pay?pa=${selectedMethod.upi_id}&pn=CustomiseClothing&am=${amount}&cu=INR`;
       qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiUrl)}`;
     }
   }
