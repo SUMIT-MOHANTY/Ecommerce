@@ -44,6 +44,22 @@ INSTALLED_APPS = [
     'accounts',
 ]
 
+
+
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "jagannath_db",
+        "USER": "jagannath",
+        "PASSWORD": "Jagannath@890",
+        "HOST": "127.0.0.1",
+        "PORT": "5432",
+    }
+}
+
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
