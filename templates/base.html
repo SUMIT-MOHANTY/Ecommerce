@@ -189,29 +189,6 @@
             scroll-behavior: smooth;
         }
 
-        /* Site-wide banner using provided image */
-        .site-banner {
-            position: relative;
-            height: 220px;
-            background: url('{% static "images/WhatsApp Image 2025-07-31 at 23.11.31 (1).jpeg" %}') center/cover no-repeat;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-            box-shadow: var(--shadow-sm);
-        }
-        .site-banner::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(246, 224, 94, .35), rgba(52, 211, 153, .35), rgba(14, 165, 166, .35));
-        }
-        .site-banner .banner-inner {
-            position: relative;
-            z-index: 1;
-            color: #0f172a;
-            text-shadow: 0 1px 2px rgba(255,255,255,.4);
-        }
     </style>
     {% block extra_css %}{% endblock %}
     
@@ -265,12 +242,6 @@
             </div>
         </div>
     </nav>
-    <!-- Site Banner -->
-    <div class="site-banner d-none d-md-block">
-        <div class="banner-inner container">
-            <!-- Optional: add tagline or call-to-action here -->
-        </div>
-    </div>
     <!-- Messages -->
     {% if messages %}
     <div class="container mt-3">
@@ -331,31 +302,37 @@
                 <!-- Customer Service -->
                 <div class="col-lg-3 col-md-6">
                     <h6 class="mb-3" style="color: var(--primary-color); font-weight: 600; font-size: 1.1rem;">Customer Service</h6>
-                    <div class="d-flex align-items-center mb-2">
-                        <div style="width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-                            <i class="fas fa-envelope" style="color: white; font-size: 0.9rem;"></i>
+
+                    <!-- Email Support -->
+                    <div class="d-flex align-items-center mb-3" style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                            <i class="fas fa-envelope" style="color: white; font-size: 1rem;"></i>
                         </div>
-                        <div>
-                            <p class="mb-0" style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Email Support</p>
-                            <a href="mailto:support@customizeclothing.com" class="text-decoration-none" style="color: var(--primary-color); font-weight: 500; font-size: 0.9rem;">support@customizeclothing.com</a>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <div style="width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-                            <i class="fas fa-phone" style="color: white; font-size: 0.9rem;"></i>
-                        </div>
-                        <div>
-                            <p class="mb-0" style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Phone Support</p>
-                            <a href="tel:+919876543210" class="text-decoration-none" style="color: var(--primary-color); font-weight: 500; font-size: 0.9rem;">+91 98765 43210</a>
+                        <div style="min-width: 0; flex: 1;">
+                            <p class="mb-1" style="color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 500;">Email Support</p>
+                            <a href="mailto:customiseclothingofficial@gmail.com" class="text-decoration-none" style="color: var(--primary-color); font-weight: 600; font-size: 0.9rem; display: block; word-break: break-word;">customiseclothingofficial@gmail.com</a>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center">
-                        <div style="width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-                            <i class="fas fa-clock" style="color: white; font-size: 0.9rem;"></i>
+
+                    <!-- Phone Support -->
+                    <div class="d-flex align-items-center mb-3" style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                            <i class="fas fa-phone" style="color: white; font-size: 1rem;"></i>
                         </div>
-                        <div>
-                            <p class="mb-0" style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Support Hours</p>
-                            <p class="mb-0" style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">Mon-Sat, 9AM-7PM</p>
+                        <div style="min-width: 0; flex: 1;">
+                            <p class="mb-1" style="color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 500;">Phone Support</p>
+                            <a href="tel:+919114960778" class="text-decoration-none" style="color: var(--primary-color); font-weight: 600; font-size: 0.9rem; display: block;">+91 9114960778</a>
+                        </div>
+                    </div>
+
+                    <!-- Support Hours -->
+                    <div class="d-flex align-items-center" style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                            <i class="fas fa-clock" style="color: white; font-size: 1rem;"></i>
+                        </div>
+                        <div style="min-width: 0; flex: 1;">
+                            <p class="mb-1" style="color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 500;">Support Hours</p>
+                            <p class="mb-0" style="color: rgba(255,255,255,0.9); font-size: 0.9rem; font-weight: 600;">Mon-Sat, 9AM-7PM</p>
                         </div>
                     </div>
                 </div>
