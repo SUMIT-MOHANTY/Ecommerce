@@ -121,9 +121,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+
+# Include project-level static directory only if it exists
+PROJECT_STATIC_DIR = BASE_DIR / 'static'
+STATICFILES_DIRS = [PROJECT_STATIC_DIR] if PROJECT_STATIC_DIR.exists() else []
 
 # Media files (User uploaded files)
 MEDIA_URL = '/media/'
