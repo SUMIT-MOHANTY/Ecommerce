@@ -6,11 +6,11 @@ from django.utils import timezone
 # Create your models here.
 
 class TimeStampedModel(models.Model):
-	created_at = models.DateTimeField(auto_now_add=True)
-	updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-	class Meta:
-		abstract = True
+    class Meta:
+        abstract = True
 
 class Category(TimeStampedModel):
     DISPLAY_STYLE_CHOICES = [
@@ -56,7 +56,7 @@ class CustomizationRequest(TimeStampedModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     uploaded_image = models.ImageField(upload_to='custom_designs/')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-	final_image = models.ImageField(upload_to='final_designs/', blank=True, null=True)
+    final_image = models.ImageField(upload_to='final_designs/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name} ({self.status})"
@@ -76,7 +76,7 @@ class PersonalizationRequest(TimeStampedModel):
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
     admin_final_image = models.ImageField(upload_to='admin_final_designs/', blank=True, null=True)
     admin_notes = models.TextField(blank=True, null=True)
-	cart_quantity = models.PositiveIntegerField(default=0, help_text='Quantity in cart for order_accepted items')
+    cart_quantity = models.PositiveIntegerField(default=0, help_text='Quantity in cart for order_accepted items')
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name} ({self.status})"
@@ -103,7 +103,7 @@ class UserAddress(TimeStampedModel):
     state = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=20)
     phone = models.CharField(max_length=20)
-	is_default = models.BooleanField(default=False, help_text='Default address for checkout')
+    is_default = models.BooleanField(default=False, help_text='Default address for checkout')
     
     class Meta:
         verbose_name = 'User Address'
@@ -122,7 +122,7 @@ class UserAddress(TimeStampedModel):
 
 class Cart(TimeStampedModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-	session_key = models.CharField(max_length=40, null=True, blank=True)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
     
     class Meta:
         indexes = [
@@ -197,7 +197,7 @@ class Cart(TimeStampedModel):
 class CartItem(TimeStampedModel):
     cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-	quantity = models.PositiveIntegerField(default=1)
+    quantity = models.PositiveIntegerField(default=1)
     
     class Meta:
         unique_together = ('cart', 'product')
@@ -255,7 +255,7 @@ class CartItem(TimeStampedModel):
 
 class Wallet(TimeStampedModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet')
-	balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
 
     def __str__(self):
         return f"{self.user.username}'s Wallet (₹{self.balance})"
@@ -301,7 +301,7 @@ class WalletTransaction(TimeStampedModel):
     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True, default='')
-	balance_after = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    balance_after = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
 
     class Meta:
         ordering = ['-created_at']
@@ -317,7 +317,7 @@ class UPIPaymentMethod(TimeStampedModel):
     qr_code = models.ImageField(upload_to='upi_qr_codes/', help_text="Upload QR code image for payments")
     upi_id = models.CharField(max_length=100, help_text="UPI ID for this payment method")
     is_active = models.BooleanField(default=True, help_text="Enable/disable this payment method")
-	display_order = models.PositiveIntegerField(default=1, help_text="Order in which to display")
+    display_order = models.PositiveIntegerField(default=1, help_text="Order in which to display")
     
     class Meta:
         ordering = ['display_order', 'name']
@@ -364,7 +364,7 @@ class Order(TimeStampedModel):
     is_returned = models.BooleanField(default=False)
     return_reason = models.TextField(blank=True, null=True)
     returned_at = models.DateTimeField(null=True, blank=True)
-	delivery_date = models.DateField(null=True, blank=True)
+    delivery_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"Order #{self.id}"
