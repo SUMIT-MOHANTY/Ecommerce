@@ -58,7 +58,9 @@ def add_to_cart_ajax(request):
         data = json.loads(request.body)
         product_id = data.get('product_id')
         quantity = int(data.get('quantity', 1))
-        
+        size_code = data.get('size') or None
+
+
         if not product_id:
             return JsonResponse({'success': False, 'error': 'Product ID required'})
         
@@ -73,7 +75,7 @@ def add_to_cart_ajax(request):
         except Product.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Product not found'})
         
-        cart_item = add_to_cart(request, product_id, quantity)
+        cart_item = add_to_cart(request, product_id, quantity, size_code)
         cart_total = get_cart_total(request)
         
         return JsonResponse({
@@ -87,6 +89,7 @@ def add_to_cart_ajax(request):
                 'quantity': cart_item.quantity,
                 'price': float(cart_item.product.price),
                 'total_price': float(cart_item.total_price),
+                'size': cart_item.size.code if cart_item.size else None,
             }
         })
         
@@ -105,6 +108,7 @@ def update_cart_ajax(request):
         data = json.loads(request.body)
         product_id = data.get('product_id')
         quantity = int(data.get('quantity', 0))
+        size_code = data.get('size') or None
         
         if not product_id:
             return JsonResponse({'success': False, 'error': 'Product ID required'})
@@ -124,7 +128,7 @@ def update_cart_ajax(request):
             except Product.DoesNotExist:
                 return JsonResponse({'success': False, 'error': 'Product not found'})
         
-        cart_item = update_cart_item(request, product_id, quantity)
+        cart_item = update_cart_item(request, product_id, quantity, size_code)
         cart_total = get_cart_total(request)
         
         if cart_item is None:
@@ -144,6 +148,7 @@ def update_cart_ajax(request):
                 'product_id': cart_item.product.id,
                 'quantity': cart_item.quantity,
                 'total_price': float(cart_item.total_price),
+                'size': cart_item.size.code if cart_item.size else None,
             }
         })
         
@@ -161,11 +166,12 @@ def remove_from_cart_ajax(request):
     try:
         data = json.loads(request.body)
         product_id = data.get('product_id')
+        size_code = data.get('size') or None
         
         if not product_id:
             return JsonResponse({'success': False, 'error': 'Product ID required'})
         
-        success = remove_from_cart(request, product_id)
+        success = remove_from_cart(request, product_id, size_code)
         cart_total = get_cart_total(request)
         
         if success:
@@ -209,6 +215,7 @@ def get_cart_data_ajax(request):
                 'quantity': item.quantity,
                 'price': float(item.product.price),
                 'total_price': float(item.total_price),
+                'size': item.size.code if item.size else None,
             })
         
         # Add personalization requests

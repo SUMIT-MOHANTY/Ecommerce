@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Product, CustomizationRequest, Category, Cart, CartItem, PersonalizationRequest, Order, OrderItem, Wallet, WalletTransaction, UPIPaymentMethod, ReturnRequest
+from .models import Product, CustomizationRequest, Category, Cart, CartItem, PersonalizationRequest, Order, OrderItem, Wallet, WalletTransaction, UPIPaymentMethod, ReturnRequest, Size
 
 class CategoryInline(admin.TabularInline):
     model = Category
@@ -32,25 +32,30 @@ class ProductAdminForm(forms.ModelForm):
         self.fields['category'].queryset = Category.objects.all().order_by('parent__name', 'name')
 
         def make_label(cat: Category):
-            return f"{cat.parent.name}  {cat.name}" if cat.parent else cat.name
+            return f"{cat.parent.name} > {cat.name}" if cat.parent else cat.name
 
         self.fields['category'].label_from_instance = make_label
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     form = ProductAdminForm
-    list_display = ('name', 'category', 'price', 'stock')
-    list_filter = ('category',)
+    list_display = ('name', 'category', 'price', 'stock', 'can_customize')
+    list_filter = ('category', 'can_customize')
     search_fields = ('name', 'description')
     fieldsets = (
         (None, {
-            'fields': ('name', 'category', 'price', 'stock', 'description')
+            'fields': ('name', 'category', 'price', 'stock', 'description', 'can_customize')
         }),
         ('Images', {
             'fields': ('image',),
             'classes': ('collapse',)
         }),
+        ('Sizes', {
+            'fields': ('sizes',),
+            'classes': ('collapse',)
+        }),
     )
+    filter_horizontal = ('sizes',)
 
 class CartItemInline(admin.TabularInline):
     model = CartItem
@@ -80,14 +85,14 @@ class CartAdmin(admin.ModelAdmin):
 
 @admin.register(CartItem)
 class CartItemAdmin(admin.ModelAdmin):
-    list_display = ('cart', 'product', 'quantity', 'total_price', 'created_at')
+    list_display = ('cart', 'product', 'size', 'quantity', 'total_price', 'created_at')
     list_filter = ('created_at', 'updated_at')
     search_fields = ('cart__user__username', 'product__name')
     readonly_fields = ('total_price', 'created_at', 'updated_at')
     
     fieldsets = (
         ('Item Information', {
-            'fields': ('cart', 'product', 'quantity')
+            'fields': ('cart', 'product', 'size', 'quantity')
         }),
         ('Pricing', {
             'fields': ('total_price',)
@@ -97,6 +102,11 @@ class CartItemAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+@admin.register(Size)
+class SizeAdmin(admin.ModelAdmin):
+    list_display = ('code', 'display_order')
+    ordering = ('display_order', 'code')
 
 admin.site.register(CustomizationRequest)
 

@@ -651,7 +651,7 @@
         <!-- Cart Items -->
         <div class="cart-items">
           {% for item in cart_items %}
-          <div class="cart-item" data-product-id="{{ item.product.id }}">
+          <div class="cart-item" data-product-id="{{ item.product.id }}" data-size="{{ item.size.code|default_if_none:'' }}">
             <div class="item-image">
               {% if item.product.image and item.product.image.url %}
                 <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
@@ -661,7 +661,7 @@
             </div>
             
             <div class="item-details">
-              <h3 class="item-name">{{ item.product.name }}</h3>
+              <h3 class="item-name">{{ item.product.name }}{% if item.size %} ({{ item.size.code }}){% endif %}</h3>
               {% if item.product.description %}
                 <p class="item-description">{{ item.product.description|truncatewords:10 }}</p>
               {% endif %}
@@ -670,18 +670,18 @@
             <div class="item-price">₹{{ item.product.price }}</div>
             
             <div class="quantity-controls">
-              <button class="qty-btn qty-decrease" data-product-id="{{ item.product.id }}">
+              <button class="qty-btn qty-decrease" data-product-id="{{ item.product.id }}" data-size="{{ item.size.code|default_if_none:'' }}">
                 <i class="fas fa-minus"></i>
               </button>
-              <input type="number" class="qty-input" value="{{ item.quantity }}" min="1" data-product-id="{{ item.product.id }}">
-              <button class="qty-btn qty-increase" data-product-id="{{ item.product.id }}">
+              <input type="number" class="qty-input" value="{{ item.quantity }}" min="1" data-product-id="{{ item.product.id }}" data-size="{{ item.size.code|default_if_none:'' }}">
+              <button class="qty-btn qty-increase" data-product-id="{{ item.product.id }}" data-size="{{ item.size.code|default_if_none:'' }}">
                 <i class="fas fa-plus"></i>
               </button>
             </div>
             
             <div class="item-total">₹{{ item.total_price }}</div>
             
-            <button class="delete-btn" data-product-id="{{ item.product.id }}" title="Remove item">
+            <button class="delete-btn" data-product-id="{{ item.product.id }}" data-size="{{ item.size.code|default_if_none:'' }}" title="Remove item">
               <i class="fas fa-trash"></i>
             </button>
           </div>
@@ -943,9 +943,12 @@ function showImageModal(imageUrl, title) {
 }
 
 // Cart management functions
-function updateCartItem(productId, quantity) {
-  const button = document.querySelector(`[data-product-id="${productId}"] .qty-input`);
+function updateCartItem(productId, quantity, sizeOverride = null) {
+  const containerSelector = `[data-product-id="${productId}"]${sizeOverride !== null ? `[data-size="${sizeOverride}"]` : ''}`;
+  const button = document.querySelector(`${containerSelector} .qty-input`);
   if (button) button.disabled = true;
+  const container = document.querySelector(containerSelector);
+  const size = sizeOverride !== null ? sizeOverride : (container ? (container.getAttribute('data-size') || null) : null);
   
   fetch('{% url "store:update_cart_ajax" %}', {
     method: 'POST',
@@ -955,18 +958,19 @@ function updateCartItem(productId, quantity) {
     },
     body: JSON.stringify({
       product_id: productId,
-      quantity: parseInt(quantity)
+      quantity: parseInt(quantity),
+      size: size
     })
   })
   .then(response => response.json())
   .then(data => {
     if (data.success) {
       if (data.item_removed) {
-        const item = document.querySelector(`[data-product-id="${productId}"]`);
+        const item = document.querySelector(`${containerSelector}`);
         if (item) item.remove();
         showToast('Item removed from cart');
       } else {
-        const totalElement = document.querySelector(`[data-product-id="${productId}"] .item-total`);
+        const totalElement = document.querySelector(`${containerSelector} .item-total`);
         if (totalElement) totalElement.textContent = `₹${data.item.total_price}`;
         showToast('Cart updated successfully');
       }
@@ -987,6 +991,8 @@ function updateCartItem(productId, quantity) {
 
 function removeCartItem(productId) {
   if (!confirm('Are you sure you want to remove this item from your cart?')) return;
+  const container = document.querySelector(`[data-product-id="${productId}"]`);
+  const size = container ? (container.getAttribute('data-size') || null) : null;
   
   fetch('{% url "store:remove_from_cart_ajax" %}', {
     method: 'POST',
@@ -994,7 +1000,7 @@ function removeCartItem(productId) {
       'Content-Type': 'application/json',
       'X-CSRFToken': csrftoken
     },
-    body: JSON.stringify({ product_id: productId })
+    body: JSON.stringify({ product_id: productId, size: size })
   })
   .then(response => response.json())
   .then(data => {
@@ -1137,11 +1143,12 @@ function initializeCart() {
     button.addEventListener('click', (e) => {
       e.preventDefault();
       const productId = button.dataset.productId;
-      const input = document.querySelector(`[data-product-id="${productId}"] .qty-input`);
+      const size = button.getAttribute('data-size') || null;
+      const input = document.querySelector(`[data-product-id="${productId}"][data-size="${size}"] .qty-input`);
       const currentValue = parseInt(input.value) || 1;
       const newValue = Math.max(1, currentValue - 1);
       input.value = newValue;
-      updateCartItem(productId, newValue);
+      updateCartItem(productId, newValue, size);
     });
   });
   
@@ -1150,11 +1157,12 @@ function initializeCart() {
     button.addEventListener('click', (e) => {
       e.preventDefault();
       const productId = button.dataset.productId;
-      const input = document.querySelector(`[data-product-id="${productId}"] .qty-input`);
+      const size = button.getAttribute('data-size') || null;
+      const input = document.querySelector(`[data-product-id="${productId}"][data-size="${size}"] .qty-input`);
       const currentValue = parseInt(input.value) || 1;
       const newValue = currentValue + 1;
       input.value = newValue;
-      updateCartItem(productId, newValue);
+      updateCartItem(productId, newValue, size);
     });
   });
   
@@ -1163,7 +1171,8 @@ function initializeCart() {
     button.addEventListener('click', (e) => {
       e.preventDefault();
       const productId = button.dataset.productId;
-      removeCartItem(productId);
+      const size = button.getAttribute('data-size') || null;
+      removeCartItem(productId, size);
     });
   });
   
@@ -1171,12 +1180,13 @@ function initializeCart() {
   document.querySelectorAll('.qty-input[data-product-id]').forEach(input => {
     input.addEventListener('change', (e) => {
       const productId = input.dataset.productId;
+      const size = input.getAttribute('data-size') || null;
       const quantity = parseInt(input.value);
       if (quantity < 1) {
         input.value = 1;
         return;
       }
-      updateCartItem(productId, quantity);
+      updateCartItem(productId, quantity, size);
     });
   });
   

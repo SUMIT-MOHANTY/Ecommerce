@@ -162,7 +162,7 @@
   
   .category-circle-text {
     font-weight: 600;
-    color: #2d3748;
+    color: var(--primary-color);
     font-size: 0.875rem;
   }
   
@@ -175,7 +175,6 @@
   }
   
   .category-box {
-    background: white !important;
     border-radius: 12px !important;
     padding: 1.25rem !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
@@ -193,44 +192,43 @@
     z-index: 10 !important;
   }
   
-  .category-box::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .category-box:hover::before {
-    opacity: 1;
-  }
-  
   .category-box:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-    color: white;
   }
   
   .category-box-content {
     position: relative;
     z-index: 2;
-    transition: color 0.3s ease;
   }
   
   .category-box-icon {
-    font-size: 1.75rem;
-    margin-bottom: 0.75rem;
+    font-size: 2rem;
+    margin-bottom: 1rem;
     display: block;
+    color: var(--text-secondary);
+    opacity: 0.7;
   }
   
   .category-box-title {
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0;
+    color: var(--primary-color);
+  }
+
+  /* Category box with background image */
+  .category-box.has-image {
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+  }
+
+  .category-box.has-image .category-box-content {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(2px) !important;
+    border-radius: 8px !important;
+    padding: 1rem !important;
   }
   
   /* Compact Superhero Section */
@@ -561,7 +559,8 @@
             <a href="{% url 'store:category_page' category.id %}" class="text-decoration-none">
               <div class="category-circle">
                 {% if category.image %}
-                  <img src="{{ category.image.url }}" alt="{{ category.name }}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+                  <img src="{{ category.image.url }}" alt="{{ category.name }}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <i class="fas fa-tshirt" style="font-size: 2rem; color: white; display: none;"></i>
                 {% else %}
                   <i class="fas fa-tshirt" style="font-size: 2rem; color: white;"></i>
                 {% endif %}
@@ -583,12 +582,10 @@
         {% for category in categories %}
           {% if category.display_style == 'box' %}
           <a href="{% url 'store:category_page' category.id %}" class="text-decoration-none">
-            <div class="category-box">
+            <div class="category-box{% if category.image %} has-image{% endif %}"{% if category.image %} style="background-image: url('{{ category.image.url }}'); background-size: cover; background-position: center;"{% endif %}>
               <div class="category-box-content">
-                {% if category.image %}
-                  <img src="{{ category.image.url }}" class="category-box-icon" alt="{{ category.name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem;">
-                {% else %}
-                  <i class="fas fa-tshirt category-box-icon" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                {% if not category.image %}
+                  <i class="fas fa-tshirt category-box-icon"></i>
                 {% endif %}
                 <h3 class="category-box-title">{{ category.name }}</h3>
               </div>
@@ -601,7 +598,7 @@
         <a href="{% url 'store:personalize_products' %}" class="text-decoration-none">
           <div class="category-box">
             <div class="category-box-content">
-              <i class="fas fa-palette category-box-icon" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+              <i class="fas fa-palette category-box-icon"></i>
               <h3 class="category-box-title">Personalize</h3>
               <p style="font-size: 0.9rem; margin: 0;">Upload your design</p>
             </div>
@@ -787,7 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize cart badge on page load by fetching from server
   function initCartBadge() {
-    fetch('{% url 'store:cart_count' %}')
+    fetch("{% url 'store:cart_count' %}")
       .then(response => response.json())
       .then(data => {
         if (data.success) {

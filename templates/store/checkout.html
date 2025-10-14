@@ -524,7 +524,9 @@
             <div class="section-badge">Cart Items</div>
             {% for item in regular_cart_items %}
               <div class="order-item">
-                <span class="order-item-name">{{ item.product.name }} × {{ item.quantity }}</span>
+                <span class="order-item-name">
+                  {{ item.product.name }}{% if item.size %} ({{ item.size.code }}){% endif %} × {{ item.quantity }}
+                </span>
                 <span class="order-item-price">₹{{ item.total_price }}</span>
               </div>
             {% endfor %}

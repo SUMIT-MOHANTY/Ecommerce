@@ -34,6 +34,24 @@ class Category(TimeStampedModel):
     def has_children(self):
         return self.children.exists()
 
+
+class Size(models.Model):
+    CODE_CHOICES = [
+        ('S', 'S'),
+        ('M', 'M'),
+        ('L', 'L'),
+        ('XL', 'XL'),
+        ('XXL', 'XXL'),
+    ]
+    code = models.CharField(max_length=4, choices=CODE_CHOICES, unique=True)
+    display_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['display_order', 'code']
+
+    def __str__(self):
+        return self.code
+
 class Product(TimeStampedModel):
     name = models.CharField(max_length=100)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
@@ -42,6 +60,13 @@ class Product(TimeStampedModel):
     stock = models.PositiveIntegerField(default=0, help_text='Available inventory')
     description = models.TextField(blank=True, help_text='Detailed product description')
     can_customize = models.BooleanField(default=False, help_text='Can this product be personalized?')
+    # If a product has one or more sizes assigned via the Size model, size selection will be shown on PDP
+    # Keep empty to indicate no size selection required
+    # Admin can configure which products have sizes
+    
+    # defined after Size class (string reference)
+    # ManyToMany allows selecting any subset of standard sizes
+    sizes = models.ManyToManyField('Size', blank=True, related_name='products')
 
     def __str__(self):
         return self.name
@@ -198,15 +223,17 @@ class CartItem(TimeStampedModel):
     cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    size = models.ForeignKey('Size', on_delete=models.SET_NULL, null=True, blank=True)
     
     class Meta:
-        unique_together = ('cart', 'product')
+        unique_together = ('cart', 'product', 'size')
         indexes = [
-            models.Index(fields=['cart', 'product']),
+            models.Index(fields=['cart', 'product', 'size']),
         ]
     
     def __str__(self):
-        return f"{self.quantity}x {self.product.name}"
+        size_label = f" ({self.size.code})" if getattr(self, 'size', None) else ''
+        return f"{self.quantity}x {self.product.name}{size_label}"
     
     @property
     def total_price(self):
@@ -582,6 +609,7 @@ class OrderItem(TimeStampedModel):
     unit_price = models.DecimalField(max_digits=8, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
     line_total = models.DecimalField(max_digits=10, decimal_places=2)
+    size = models.ForeignKey('Size', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"{self.quantity}x {self.product_name}"

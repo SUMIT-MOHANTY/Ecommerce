@@ -273,13 +273,13 @@
                         <a href="#" class="text-decoration-none" style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.1)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
                             <i class="fab fa-facebook-f" style="color: white; font-size: 1.1rem;"></i>
                         </a>
-                        <a href="#" class="text-decoration-none" style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.1)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
+                        <a href="https://www.instagram.com/customiseclothing.in?igsh=MXNhbjFsYXBjcjNpaw==" target="_blank" class="text-decoration-none" style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.1)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
                             <i class="fab fa-instagram" style="color: white; font-size: 1.1rem;"></i>
                         </a>
                         <a href="#" class="text-decoration-none" style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.1)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
                             <i class="fab fa-twitter" style="color: white; font-size: 1.1rem;"></i>
                         </a>
-                        <a href="#" class="text-decoration-none" style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.1)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
+                        <a href="https://wa.me/message/IYASSC55TUZIP1" target="_blank" class="text-decoration-none" style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.1)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
                             <i class="fab fa-whatsapp" style="color: white; font-size: 1.1rem;"></i>
                         </a>
                     </div>
@@ -443,17 +443,39 @@ document.addEventListener('DOMContentLoaded', function() {
       showToast('This item is already in your cart', 'info');
       return false;
     }
-    
+
     // Prevent multiple clicks while processing
     if (button.classList.contains('processing')) {
       console.log('Add to cart already in progress');
       return false;
     }
-    
+
     button.classList.add('processing');
-    
+
     const productId = button.dataset.id;
     const quantity = 1; // Default quantity
+
+    // Check for size selection
+    let selectedSize = null;
+
+    // First check if size is stored in button data
+    if (button.dataset.selectedSize) {
+      selectedSize = button.dataset.selectedSize;
+    } else {
+      // Look for active size option on the page
+      const activeSizeOption = document.querySelector('.size-option.active');
+      if (activeSizeOption) {
+        selectedSize = activeSizeOption.getAttribute('data-size');
+      }
+    }
+
+    // Check if product has sizes but none selected
+    const hasSizes = document.querySelectorAll('.size-option').length > 0;
+    if (hasSizes && !selectedSize) {
+      showToast('Please select a size before adding to cart', 'danger');
+      button.classList.remove('processing');
+      return false;
+    }
 
     // Show loading state
     const originalHTML = button.innerHTML;
@@ -462,18 +484,26 @@ document.addEventListener('DOMContentLoaded', function() {
     button.className = originalClass.replace('btn-primary', 'btn-secondary') + ' processing';
     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
+    // Prepare request data
+    const requestData = {
+      product_id: productId,
+      quantity: quantity
+    };
+
+    // Add size if selected
+    if (selectedSize) {
+      requestData.size = selectedSize;
+    }
+
     // Make API call to add to cart
-    console.log('Making add to cart request for product:', productId);
+    console.log('Making add to cart request for product:', productId, 'with size:', selectedSize);
     return fetch("{% url 'store:add_to_cart_ajax' %}", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': getCSRFToken()
       },
-      body: JSON.stringify({
-        product_id: productId,
-        quantity: quantity
-      })
+      body: JSON.stringify(requestData)
     })
     .then(response => response.json())
     .then(data => {

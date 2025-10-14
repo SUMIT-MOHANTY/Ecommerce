@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Product, CustomizationRequest, Category, PersonalizationRequest, Order, OrderItem, Wallet, WalletTransaction, UPIPaymentMethod, UserAddress, ReturnRequest
+from .models import Product, CustomizationRequest, Category, PersonalizationRequest, Order, OrderItem, Wallet, WalletTransaction, UPIPaymentMethod, UserAddress, ReturnRequest, Size
 from .cart_utils import get_cart_items, get_cart_total, clear_cart
 from django import forms
 from django.template.loader import render_to_string
@@ -26,9 +26,9 @@ def home(request):
 
     # Top-level categories for the grid, EXCLUDING the fandom parent so it only appears in the fandom section
     if fandom_parent:
-        categories = Category.objects.filter(parent__isnull=True).exclude(id=fandom_parent.id)
+        categories = Category.objects.filter(parent__isnull=True).exclude(id=fandom_parent.id).select_related()
     else:
-        categories = Category.objects.filter(parent__isnull=True)
+        categories = Category.objects.filter(parent__isnull=True).select_related()
 
     # Featured products (show at least 20 products if available)
     featured_products = products[:20]  # Show up to 20 products
@@ -48,10 +48,19 @@ from django.shortcuts import get_object_or_404
 
 def category_page(request, category_id):
     category = get_object_or_404(Category, id=category_id)
-    products = Product.objects.filter(category=category)
+    products = Product.objects.filter(category=category).prefetch_related('sizes')
+
+    # Create a list of products with their available sizes
+    products_with_sizes = []
+    for product in products:
+        products_with_sizes.append({
+            'product': product,
+            'available_sizes': list(product.sizes.all())
+        })
+
     return render(request, 'store/category_page.html', {
         'category': category,
-        'products': products
+        'products_with_sizes': products_with_sizes
     })
 
 def plain_shirt(request):
@@ -393,10 +402,11 @@ def product_detail(request, product_id):
     
     # Get related products from the same category (excluding current product)
     related_products = Product.objects.filter(category=product.category).exclude(id=product_id)[:4]
-    
+    available_sizes = list(product.sizes.all())
     return render(request, 'store/product_detail.html', {
         'product': product,
-        'related_products': related_products
+        'related_products': related_products,
+        'available_sizes': available_sizes,
     })
 
 def cart(request):
@@ -682,6 +692,7 @@ def checkout(request):
                 unit_price=item.product.price,
                 quantity=item.quantity,
                 line_total=item.total_price,
+                size=item.size,
             )
             # reduce stock
             item.product.stock = max(0, item.product.stock - item.quantity)
@@ -758,7 +769,7 @@ def checkout(request):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'category', 'image', 'price', 'description', 'can_customize']
+        fields = ['name', 'category', 'image', 'price', 'description', 'can_customize', 'sizes']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -769,6 +780,8 @@ class ProductForm(forms.ModelForm):
             return f"{cat.parent.name} › {cat.name}" if cat.parent else cat.name
 
         self.fields['category'].label_from_instance = make_label
+        if 'sizes' in self.fields:
+            self.fields['sizes'].queryset = Size.objects.all().order_by('display_order', 'code')
 
 class CategoryForm(forms.ModelForm):
     class Meta:

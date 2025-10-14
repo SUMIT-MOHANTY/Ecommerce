@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from .models import Cart, CartItem, Product
+from .models import Cart, CartItem, Product, Size
 
 
 def get_or_create_cart(request):
@@ -19,24 +19,40 @@ def get_or_create_cart(request):
     return cart
 
 
-def add_to_cart(request, product_id, quantity=1):
+def add_to_cart(request, product_id, quantity=1, size_code=None):
     """Add product to cart or update quantity"""
     cart = get_or_create_cart(request)
     product = get_object_or_404(Product, id=product_id)
-    
+
     # Validate quantity
     if quantity <= 0:
         raise ValueError("Quantity must be positive")
-    
+
+    # Resolve size if provided
+    size_obj = None
+    if size_code:
+        try:
+            size_obj = Size.objects.get(code=size_code)
+        except Size.DoesNotExist:
+            raise ValueError("Invalid size selected")
+
     # Use get_or_create with a lock to prevent race conditions
     with transaction.atomic():
         # Lock the product row to check stock
         product = Product.objects.select_for_update().get(id=product_id)
+
+        # Validate size vs product configuration
+        product_has_sizes = product.sizes.exists()
+        if product_has_sizes and size_obj is None:
+            raise ValueError("Please select a size for this product")
+        if size_obj is not None and product_has_sizes and not product.sizes.filter(id=size_obj.id).exists():
+            raise ValueError("Selected size is not available for this product")
         
         # Try to get or create the cart item
         cart_item, created = CartItem.objects.select_for_update().get_or_create(
             cart=cart,
             product=product,
+            size=size_obj,
             defaults={'quantity': 0}  # Will be updated below
         )
         
@@ -59,16 +75,31 @@ def add_to_cart(request, product_id, quantity=1):
     return cart_item
 
 
-def update_cart_item(request, product_id, quantity):
+def update_cart_item(request, product_id, quantity, size_code=None):
     """Update cart item quantity"""
     cart = get_or_create_cart(request)
     product = get_object_or_404(Product, id=product_id)
     
+    # Resolve size if provided
+    size_obj = None
+    if size_code:
+        try:
+            size_obj = Size.objects.get(code=size_code)
+        except Size.DoesNotExist:
+            raise ValueError("Invalid size selected")
+
     with transaction.atomic():
         try:
             # Lock both product and cart item
             product = Product.objects.select_for_update().get(id=product_id)
-            cart_item = CartItem.objects.select_for_update().get(cart=cart, product=product)
+            # Validate size vs product configuration
+            product_has_sizes = product.sizes.exists()
+            if product_has_sizes and size_obj is None:
+                raise ValueError("Please select a size for this product")
+            if size_obj is not None and product_has_sizes and not product.sizes.filter(id=size_obj.id).exists():
+                raise ValueError("Selected size is not available for this product")
+
+            cart_item = CartItem.objects.select_for_update().get(cart=cart, product=product, size=size_obj)
             
             if quantity <= 0:
                 cart_item.delete()
@@ -85,13 +116,16 @@ def update_cart_item(request, product_id, quantity):
             return None
 
 
-def remove_from_cart(request, product_id):
+def remove_from_cart(request, product_id, size_code=None):
     """Remove product from cart"""
     cart = get_or_create_cart(request)
     product = get_object_or_404(Product, id=product_id)
     
     try:
-        cart_item = CartItem.objects.get(cart=cart, product=product)
+        size_obj = None
+        if size_code:
+            size_obj = Size.objects.get(code=size_code)
+        cart_item = CartItem.objects.get(cart=cart, product=product, size=size_obj)
         cart_item.delete()
         return True
     except CartItem.DoesNotExist:
