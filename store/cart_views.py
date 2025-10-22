@@ -11,7 +11,8 @@ import json
 from .models import Product, Cart, CartItem, PersonalizationRequest
 from .cart_utils import (
     get_or_create_cart, add_to_cart, update_cart_item, 
-    remove_from_cart, get_cart_items, get_cart_total, clear_cart
+    remove_from_cart, get_cart_items, get_cart_total, clear_cart,
+    calculate_delivery_charges
 )
 
 
@@ -41,12 +42,16 @@ def cart_page(request):
         'item_count': cart_total['item_count'] + sum(1 for req in personalization_requests if req.is_in_cart)
     }
     
+    # Calculate delivery charges for display
+    delivery_info = calculate_delivery_charges(combined_cart_total['total_price'])
+    
     context = {
         'cart_items': cart_items,
         'cart_total': combined_cart_total,
         'regular_cart_total': cart_total,
         'personalization_cart_total': personalization_cart_total,
         'personalization_requests': personalization_requests,
+        'delivery_info': delivery_info,
     }
     return render(request, 'store/cart.html', context)
 

@@ -202,6 +202,24 @@
   .form-group input[type="file"] {
     display: none;
   }
+  
+  /* Size option styling */
+  .size-option {
+    position: relative;
+    transition: all 0.3s ease !important;
+  }
+
+  .size-option:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+  }
+
+  .size-option.active {
+    background-color: #667eea !important;
+    color: white !important;
+    border-color: #667eea !important;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3) !important;
+  }
 </style>
 
 <div class="personalize-container">
@@ -226,6 +244,36 @@
         {% if user.is_authenticated %}
         <form method="post" enctype="multipart/form-data" id="personalizationForm">
           {% csrf_token %}
+          
+          {% if available_sizes %}
+          <div class="upload-section">
+            <h3 class="upload-title">Select Size</h3>
+            <p class="upload-instructions">
+              Please select the size for your personalized {{ product.name }}.
+            </p>
+            
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              {% for size in available_sizes %}
+              <button type="button" class="btn btn-outline-secondary size-option"
+                      data-size="{{ size.code }}"
+                      style="min-width: 40px; padding: 8px 12px; border-radius: 6px; transition: all 0.2s ease;"
+                      title="Size {{ size.code }}">
+                {{ size.code }}
+              </button>
+              {% endfor %}
+            </div>
+            
+            <small class="text-muted d-block mb-3">
+              Sizes available for this product ({{ available_sizes|length }} option{{ available_sizes|length|pluralize }}).
+              <span id="selected-size-text" class="text-primary" style="display: none;">
+                Selected: <strong id="selected-size-value"></strong>
+              </span>
+            </small>
+            
+            <!-- Hidden input to store selected size -->
+            <input type="hidden" name="selected_size" id="selected_size_input" value="">
+          </div>
+          {% endif %}
           
           <div class="upload-section">
             <h3 class="upload-title">Upload Your Design</h3>
@@ -271,6 +319,38 @@ document.addEventListener('DOMContentLoaded', function() {
   const imagePreview = document.getElementById('imagePreview');
   const previewImg = document.getElementById('previewImg');
   const submitBtn = document.getElementById('submitBtn');
+  const selectedSizeInput = document.getElementById('selected_size_input');
+  let selectedSize = null;
+  
+  // Handle size selection
+  document.querySelectorAll('.size-option').forEach(btn => {
+    btn.addEventListener('click', function() {
+      // Remove active class from all size buttons
+      document.querySelectorAll('.size-option').forEach(b => {
+        b.classList.remove('active');
+        b.style.backgroundColor = '';
+        b.style.color = '';
+        b.style.borderColor = '';
+      });
+      
+      // Add active class to clicked button
+      this.classList.add('active');
+      this.style.backgroundColor = '#667eea';
+      this.style.color = 'white';
+      this.style.borderColor = '#667eea';
+      
+      selectedSize = this.getAttribute('data-size');
+      selectedSizeInput.value = selectedSize;
+
+      // Update selected size display
+      const selectedSizeText = document.getElementById('selected-size-text');
+      const selectedSizeValue = document.getElementById('selected-size-value');
+      if (selectedSizeText && selectedSizeValue) {
+        selectedSizeValue.textContent = selectedSize;
+        selectedSizeText.style.display = 'inline';
+      }
+    });
+  });
   
   // Handle file selection
   fileInput.addEventListener('change', function(e) {
@@ -308,8 +388,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Form submission
+  // Form submission validation
   document.getElementById('personalizationForm').addEventListener('submit', function(e) {
+    // Check if sizes are available and enforce selection
+    const hasSizes = document.querySelectorAll('.size-option').length > 0;
+    if (hasSizes && !selectedSize) {
+      e.preventDefault();
+      alert('Please select a size before submitting your personalization request.');
+      return false;
+    }
+    
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>Submitting...';
   });

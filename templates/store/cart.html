@@ -712,7 +712,7 @@
             <span class="cart-total-price">₹{{ cart_total.total_price }}</span>
           </div>
           
-          <button class="checkout-btn" onclick="window.location.href='{% url 'store:checkout' %}'">
+          <button class="checkout-btn" onclick="proceedToCheckout()">
             <i class="fas fa-lock me-2"></i>Proceed to Checkout
           </button>
         </div>
@@ -752,6 +752,11 @@
               <div class="item-details">
                 <h3 class="item-name">{{ request.product.name }}</h3>
                 <p class="item-description">Created {{ request.created_at|date:"M d, Y" }}</p>
+                {% if request.size %}
+                <div class="text-muted" style="font-size: 0.9rem;">
+                  <i class="fas fa-ruler-combined me-1"></i> Size: <strong>{{ request.size.code }}</strong>
+                </div>
+                {% endif %}
                 
                 <div class="design-images">
                   {% if request.uploaded_image %}
@@ -781,7 +786,7 @@
                 <button class="approve-btn" onclick="approvePersonalization('{{ request.id }}')">
                   <i class="fas fa-check me-1"></i>Approve & Add to Cart
                 </button>
-              {% elif request.status == 'order_accepted' and request.is_in_cart %}
+              {% elif request.status == 'order_accepted' %}
                 <!-- Quantity controls for items in cart -->
                 <div class="quantity-controls">
                   <button class="qty-btn qty-decrease" data-request-id="{{ request.id }}">
@@ -822,9 +827,22 @@
             {% endif %}
             
             <div class="summary-row">
-              <span>Shipping</span>
-              <span>Free</span>
+              <span>Delivery</span>
+              {% if delivery_info.is_free_delivery %}
+                <span class="text-success">Free</span>
+              {% else %}
+                <span class="text-warning">₹{{ delivery_info.delivery_charge }}</span>
+              {% endif %}
             </div>
+            
+            {% if not delivery_info.is_free_delivery %}
+            <div class="summary-row">
+              <span class="text-muted small">
+                <i class="fas fa-info-circle me-1"></i>
+                Add ₹{{ delivery_info.free_delivery_threshold }} more for free delivery
+              </span>
+            </div>
+            {% endif %}
             
             <div class="summary-row">
               <span>Tax</span>
@@ -833,10 +851,10 @@
             
             <div class="summary-row">
               <span>Total</span>
-              <span class="cart-total-price">₹{{ cart_total.total_price }}</span>
+              <span class="cart-total-price">₹{{ cart_total.total_price|add:delivery_info.delivery_charge }}</span>
             </div>
             
-            <button class="checkout-btn" onclick="window.location.href='{% url 'store:checkout' %}'">
+            <button class="checkout-btn" onclick="proceedToCheckout()">
               <i class="fas fa-lock me-2"></i>Proceed to Checkout
             </button>
           </div>
@@ -845,7 +863,69 @@
         <div class="cart-items">
           {% for request in personalization_requests %}
           <div class="personalization-item" data-request-id="{{ request.id }}">
-            <!-- ... existing code ... -->
+            <div class="item-image">
+              {% if request.product.image and request.product.image.url %}
+                <img src="{{ request.product.image.url }}" alt="{{ request.product.name }}">
+              {% else %}
+                <i class="fas fa-image fa-2x" style="color: #d1d5db;"></i>
+              {% endif %}
+            </div>
+            
+            <div class="item-details">
+              <h3 class="item-name">{{ request.product.name }}</h3>
+              <p class="item-description">Created {{ request.created_at|date:"M d, Y" }}</p>
+              {% if request.size %}
+              <div class="text-muted" style="font-size: 0.9rem;">
+                <i class="fas fa-ruler-combined me-1"></i> Size: <strong>{{ request.size.code }}</strong>
+              </div>
+              {% endif %}
+              
+              <div class="design-images">
+                {% if request.uploaded_image %}
+                  <img src="{{ request.uploaded_image.url }}" alt="Your Design" class="design-image" 
+                       onclick="showImageModal('{{ request.uploaded_image.url }}', 'Your Design')">
+                {% endif %}
+                {% if request.admin_final_image %}
+                  <img src="{{ request.admin_final_image.url }}" alt="Final Design" class="design-image"
+                       onclick="showImageModal('{{ request.admin_final_image.url }}', 'Final Design')">
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="status-badge badge-{{ request.status }}">
+              {% if request.status == 'pending' %}
+                <i class="fas fa-clock me-1"></i>Pending
+              {% elif request.status == 'admin_approved' %}
+                <i class="fas fa-check me-1"></i>Admin Approved
+              {% elif request.status == 'user_approved' %}
+                <i class="fas fa-thumbs-up me-1"></i>User Approved
+              {% elif request.status == 'order_accepted' %}
+                <i class="fas fa-shopping-cart me-1"></i>In Cart
+              {% endif %}
+            </div>
+            
+            {% if request.status == 'admin_approved' %}
+              <button class="approve-btn" onclick="approvePersonalization('{{ request.id }}')">
+                <i class="fas fa-check me-1"></i>Approve & Add to Cart
+              </button>
+            {% elif request.status == 'order_accepted' %}
+              <!-- Quantity controls for items in cart -->
+              <div class="quantity-controls">
+                <button class="qty-btn qty-decrease" data-request-id="{{ request.id }}">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <input type="number" class="qty-input" value="{{ request.cart_quantity }}" min="1" data-request-id="{{ request.id }}">
+                <button class="qty-btn qty-increase" data-request-id="{{ request.id }}">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              
+              <div class="item-total">₹{{ request.cart_total_price }}</div>
+              
+              <button class="delete-btn" data-request-id="{{ request.id }}" title="Remove from cart">
+                <i class="fas fa-trash"></i>
+              </button>
+            {% endif %}
           </div>
           {% endfor %}
         </div>
@@ -884,6 +964,11 @@ function getCookie(name) {
 }
 
 const csrftoken = getCookie('csrftoken');
+
+// Checkout navigation function
+function proceedToCheckout() {
+  window.location.href = '{% url "store:checkout" %}';
+}
 
 // Tab functionality
 function initializeTabs() {

@@ -102,6 +102,8 @@ class PersonalizationRequest(TimeStampedModel):
     admin_final_image = models.ImageField(upload_to='admin_final_designs/', blank=True, null=True)
     admin_notes = models.TextField(blank=True, null=True)
     cart_quantity = models.PositiveIntegerField(default=0, help_text='Quantity in cart for order_accepted items')
+    # Selected size for personalized item (optional)
+    size = models.ForeignKey('Size', on_delete=models.SET_NULL, null=True, blank=True, related_name='personalizations')
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name} ({self.status})"

@@ -563,12 +563,24 @@
               <span>₹{{ cart_total.total_price }}</span>
             </div>
             <div class="total-row">
-              <span>Shipping:</span>
-              <span class="text-success">Free</span>
+              <span>Delivery:</span>
+              {% if delivery_info.is_free_delivery %}
+                <span class="text-success">Free</span>
+              {% else %}
+                <span class="text-warning">₹{{ delivery_info.delivery_charge }}</span>
+              {% endif %}
             </div>
+            {% if not delivery_info.is_free_delivery %}
+            <div class="total-row">
+              <span class="text-muted small">
+                <i class="fas fa-info-circle me-1"></i>
+                Add ₹{{ delivery_info.free_delivery_threshold }} more for free delivery
+              </span>
+            </div>
+            {% endif %}
             <div class="total-row" id="codChargeRow" style="display: none;">
               <span>COD Charges:</span>
-              <span class="text-warning">₹30</span>
+              <span class="text-warning">₹10</span>
             </div>
             <div class="total-row" id="walletUsedRow" style="display: none;">
               <span>Wallet Used:</span>
@@ -580,7 +592,7 @@
             </div>
             <div class="total-row">
               <span>Total:</span>
-              <span id="finalTotal">₹{{ cart_total.total_price }}</span>
+              <span id="finalTotal">₹{{ cart_total.total_price|add:delivery_info.delivery_charge }}</span>
             </div>
           </div>
           
@@ -614,7 +626,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const remainingAmount = document.getElementById('remainingAmount');
   
   const baseTotal = {{ cart_total.total_price }};
-  const codCharge = 30;
+  const deliveryCharge = {{ delivery_info.delivery_charge }};
+  const codCharge = 10;
   const maxWalletBalance = {{ user_wallet.balance|default:0 }};
   
   let selectedUpiProvider = null;
@@ -622,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Handle payment method changes
   function updatePaymentMethod() {
-    let totalAmount = baseTotal;
+    let totalAmount = baseTotal + deliveryCharge;
     
     // Add COD charge if COD is selected
     if (codOption && codOption.checked) {

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import user_passes_test, login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Product, CustomizationRequest, Category, PersonalizationRequest, Order, OrderItem, Wallet, WalletTransaction, UPIPaymentMethod, UserAddress, ReturnRequest, Size
-from .cart_utils import get_cart_items, get_cart_total, clear_cart
+from .cart_utils import get_cart_items, get_cart_total, clear_cart, calculate_delivery_charges
 from django import forms
 from django.template.loader import render_to_string
 from django.http import JsonResponse
@@ -195,17 +195,34 @@ class PersonalizationRequestForm(forms.ModelForm):
 def personalize_product(request, product_id):
     """Personalization form for specific product"""
     product = get_object_or_404(Product, id=product_id)
+    available_sizes = list(product.sizes.all())
+    
     if request.method == 'POST':
         form = PersonalizationRequestForm(request.POST, request.FILES)
         if form.is_valid():
             personalization = form.save(commit=False)
             personalization.user = request.user
             personalization.product = product
+
+            # Persist selected size if provided
+            selected_size_code = request.POST.get('selected_size')
+            if selected_size_code:
+                try:
+                    size_obj = Size.objects.get(code=selected_size_code)
+                    personalization.size = size_obj
+                except Size.DoesNotExist:
+                    pass
+
             personalization.save()
             return redirect('store:cart')
     else:
         form = PersonalizationRequestForm()
-    return render(request, 'store/personalize_product.html', {'product': product, 'form': form})
+    
+    return render(request, 'store/personalize_product.html', {
+        'product': product, 
+        'form': form,
+        'available_sizes': available_sizes
+    })
 
 @login_required
 def submit_personalization(request):
@@ -582,9 +599,13 @@ def checkout(request):
         # Add personalized items total to cart total
         total_amount += personalization_cart_total
 
+        # Calculate delivery charges based on order total
+        delivery_info = calculate_delivery_charges(total_amount)
+        total_amount += delivery_info['delivery_charge']
+
         # Add COD charges if COD payment method is selected
         if payment_method == 'cod':
-            total_amount += Decimal('30.00')  # ₹30 COD charge
+            total_amount += Decimal('10.00')  # ₹10 COD charge
             
         # Handle wallet payment
         wallet_amount_to_use = Decimal('0.00')
@@ -713,6 +734,7 @@ def checkout(request):
                     unit_price=req.product.price,
                     quantity=req.cart_quantity,
                     line_total=req.cart_total_price,
+                    size=req.size,
                 )
                 # reduce stock
                 req.product.stock = max(0, req.product.stock - req.cart_quantity)
@@ -754,12 +776,16 @@ def checkout(request):
         # For guest users, all items are regular
         regular_cart_items = cart_items
     
+    # Calculate delivery charges for display
+    delivery_info = calculate_delivery_charges(combined_cart_total['total_price'])
+    
     return render(request, 'store/checkout.html', {
         'cart_items': cart_items,
         'regular_cart_items': regular_cart_items,
         'personalized_cart_items': personalized_cart_items,
         'personalization_items': personalization_items,
         'cart_total': combined_cart_total,  # Use combined totals
+        'delivery_info': delivery_info,
         'upi_payment_methods': upi_payment_methods,
         'user_wallet': user_wallet,
         'saved_addresses': saved_addresses,
@@ -1047,3 +1073,13 @@ def return_status(request, order_id):
         'order': order,
         'return_request': order.return_request
     })
+
+
+def refund_cancellation_policy(request):
+    """View for refund and cancellation policy page"""
+    return render(request, 'store/refund_cancellation_policy.html')
+
+
+def terms_conditions(request):
+    """View for Terms & Conditions page"""
+    return render(request, 'store/terms_conditions.html')

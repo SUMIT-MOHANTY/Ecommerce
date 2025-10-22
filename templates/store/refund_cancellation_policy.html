@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Refund and Cancellation Policy - Customise Clothing{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h3 mb-0 text-center">
+                        <i class="fas fa-file-contract me-2"></i>
+                        Refund and Cancellation Policy
+                    </h1>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <p class="lead text-muted">
+                            This Refund and Cancellation Policy explains how you can cancel an order or request a refund for any product or service purchased through our Platform.
+                        </p>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Section 1: Order Cancellation -->
+                    <div class="mb-5">
+                        <h2 class="h4 text-primary mb-3">
+                            <i class="fas fa-times-circle me-2"></i>
+                            1. Order Cancellation
+                        </h2>
+                        
+                        <div class="mb-4">
+                            <h5 class="h6 text-dark mb-2">Standard Orders:</h5>
+                            <ul class="list-unstyled ms-3">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Cancellations must be made before dispatch or within 3 days of placing the order, whichever is earlier.
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-info-circle text-info me-2"></i>
+                                    Once the order has been dispatched or is out for delivery, cancellation requests will not be accepted. However, you may refuse the product at the time of delivery.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="h6 text-dark mb-2">Customized Products:</h5>
+                            <ul class="list-unstyled ms-3">
+                                <li class="mb-2">
+                                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                    For customized or personalized products, a 30% cancellation fee will be deducted from the prepaid amount to cover design, material, and processing costs.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Damaged or Defective Products -->
+                    <div class="mb-5">
+                        <h2 class="h4 text-primary mb-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            2. Damaged or Defective Products
+                        </h2>
+                        <ul class="list-unstyled ms-3">
+                            <li class="mb-2">
+                                <i class="fas fa-clock text-info me-2"></i>
+                                If you receive a damaged, defective, or incorrect product, please report it to our customer service team within 7 days of delivery.
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                After verification by our team or the respective seller/manufacturer, an appropriate resolution will be provided (replacement, wallet credit, or refund).
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Section 3: Refund Process -->
+                    <div class="mb-5">
+                        <h2 class="h4 text-primary mb-3">
+                            <i class="fas fa-undo me-2"></i>
+                            3. Refund Process
+                        </h2>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-primary">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-primary">
+                                            <i class="fas fa-wallet me-2"></i>
+                                            Wallet Credit
+                                        </h6>
+                                        <p class="card-text small">
+                                            Once your returned product is received and reviewed by our quality check team, the approved refund amount will first be credited to your Wallet on our Platform.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-success">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-success">
+                                            <i class="fas fa-exchange-alt me-2"></i>
+                                            Transfer Process
+                                        </h6>
+                                        <p class="card-text small">
+                                            The refunded amount will remain visible in your Wallet until it is transferred to your original payment method.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Timeline:</strong> The transfer to your original payment method will be completed within 7 days after quality check approval.
+                        </div>
+                        <div class="alert alert-success">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            <strong>Flexible Usage:</strong> You can also use your Wallet balance for future purchases anytime before the transfer is initiated.
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Refund Timeline -->
+                    <div class="mb-5">
+                        <h2 class="h4 text-primary mb-3">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            4. Refund Timeline
+                        </h2>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 border-warning">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-credit-card text-warning fa-2x mb-2"></i>
+                                        <h6 class="card-title">Prepaid Order Cancellations</h6>
+                                        <p class="card-text small">
+                                            Refunds will be processed within 7 days of cancellation approval.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 border-danger">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-paint-brush text-danger fa-2x mb-2"></i>
+                                        <h6 class="card-title">Customized Product Cancellations</h6>
+                                        <p class="card-text small">
+                                            Refunds will be processed after deducting 30% of the total amount.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 border-success">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-check-double text-success fa-2x mb-2"></i>
+                                        <h6 class="card-title">Return Quality Check</h6>
+                                        <p class="card-text small">
+                                            Wallet balance will reflect within 24–48 hours, and transfer to the original payment method will be completed within 7 days.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 5: Manufacturer Warranty -->
+                    <div class="mb-4">
+                        <h2 class="h4 text-primary mb-3">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            5. Manufacturer Warranty
+                        </h2>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-tools me-2"></i>
+                            <strong>Important:</strong> For products that come with a manufacturer's warranty, please contact the manufacturer directly for support, repair, or replacement.
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="mt-5 pt-4 border-top">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-headset me-2"></i>
+                                    Need Help?
+                                </h5>
+                                <p class="text-muted">
+                                    If you have any questions about our refund and cancellation policy, please don't hesitate to contact our customer service team.
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-envelope me-2"></i>
+                                    Contact Us
+                                </h5>
+                                <p class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-2"></i>
+                                    Jagganath Lane, Cuttack, Odisha<br>
+                                    <i class="fas fa-clock me-2"></i>
+                                    Available 24/7 for your convenience
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        Last updated: {{ "now"|date:"F d, Y" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

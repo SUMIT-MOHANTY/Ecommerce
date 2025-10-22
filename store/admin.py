@@ -113,7 +113,7 @@ admin.site.register(CustomizationRequest)
 @admin.register(PersonalizationRequest)
 class PersonalizationRequestAdmin(admin.ModelAdmin):
     list_display = (
-        'user_display', 'product', 'status', 'created_at', 'updated_at'
+        'user_display', 'product', 'size', 'status', 'created_at', 'updated_at'
     )
     list_filter = ('status', 'product', 'created_at')
     search_fields = ('user__username', 'product__name')
@@ -121,7 +121,7 @@ class PersonalizationRequestAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Request Info', {
-            'fields': ('user', 'product', 'uploaded_image', 'status')
+            'fields': ('user', 'product', 'size', 'uploaded_image', 'status')
         }),
         ('Admin Response', {
             'fields': ('admin_final_image', 'admin_notes')

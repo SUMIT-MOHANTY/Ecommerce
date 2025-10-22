@@ -34,7 +34,7 @@
         <div class="card-body p-4">
           <h5 class="mb-3">Order Details</h5>
           <div class="row mb-3">
-            <div class="col-md-6"><strong>Order #</strong>: {{ order.id }}</div>
+            <div class="col-md-6"><strong>Order Status</strong>: {{ order.status|title }}</div>
             <div class="col-md-6"><strong>Placed On</strong>: {{ order.created_at|date:"Y-m-d H:i" }}</div>
           </div>
           <div class="row mb-3">

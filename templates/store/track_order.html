@@ -148,7 +148,7 @@
           <div class="order-info">
             <div class="row">
               <div class="col-md-6">
-                <h6>Order #{{ order.id }}</h6>
+                <h6>Order Status: {{ order.status|title }}</h6>
                 <p class="mb-1"><strong>Status:</strong> {{ order.get_status_display }}</p>
                 {% if order.tracking_number %}
                   <p class="mb-1"><strong>Tracking Number:</strong> {{ order.tracking_number }}</p>

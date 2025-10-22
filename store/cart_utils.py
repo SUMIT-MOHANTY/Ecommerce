@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+from decimal import Decimal
 from .models import Cart, CartItem, Product, Size
 
 
@@ -197,3 +198,38 @@ def merge_carts(user, session_key):
             # No guest cart exists
             user_cart, created = Cart.objects.get_or_create(user=user)
             return user_cart
+
+
+def calculate_delivery_charges(order_total):
+    """
+    Calculate delivery charges based on order total.
+    
+    Rules:
+    - Above ₹349: Free delivery
+    - Below ₹349: ₹25 delivery charges
+    
+    Args:
+        order_total (Decimal): The total order amount
+        
+    Returns:
+        dict: {
+            'delivery_charge': Decimal,
+            'is_free_delivery': bool,
+            'free_delivery_threshold': Decimal
+        }
+    """
+    FREE_DELIVERY_THRESHOLD = Decimal('349.00')
+    DELIVERY_CHARGE = Decimal('25.00')
+    
+    if order_total >= FREE_DELIVERY_THRESHOLD:
+        return {
+            'delivery_charge': Decimal('0.00'),
+            'is_free_delivery': True,
+            'free_delivery_threshold': FREE_DELIVERY_THRESHOLD
+        }
+    else:
+        return {
+            'delivery_charge': DELIVERY_CHARGE,
+            'is_free_delivery': False,
+            'free_delivery_threshold': FREE_DELIVERY_THRESHOLD
+        }
