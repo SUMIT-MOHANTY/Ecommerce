@@ -64,5 +64,6 @@ urlpatterns = [
     path('return-status/<int:order_id>/', views.return_status, name='return_status'),
     # Policy pages
     path('refund-cancellation-policy/', views.refund_cancellation_policy, name='refund_cancellation_policy'),
+    path('shipping-policy/', views.shipping_policy, name='shipping_policy'),
     path('terms-conditions/', views.terms_conditions, name='terms_conditions'),
 ] 

@@ -1080,6 +1080,11 @@ def refund_cancellation_policy(request):
     return render(request, 'store/refund_cancellation_policy.html')
 
 
+def shipping_policy(request):
+    """View for shipping policy page"""
+    return render(request, 'store/shipping_policy.html')
+
+
 def terms_conditions(request):
     """View for Terms & Conditions page"""
     return render(request, 'store/terms_conditions.html')
