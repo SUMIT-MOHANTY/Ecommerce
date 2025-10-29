@@ -1088,3 +1088,8 @@ def shipping_policy(request):
 def terms_conditions(request):
     """View for Terms & Conditions page"""
     return render(request, 'store/terms_conditions.html')
+
+
+def privacy_policy(request):
+    """View for Privacy Policy page"""
+    return render(request, 'store/privacy_policy.html')

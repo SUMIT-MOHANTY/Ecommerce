@@ -296,6 +296,7 @@
                         <li class="mb-2"><a href="{% url 'store:refund_cancellation_policy' %}" class="text-decoration-none" style="color: rgba(255,255,255,0.8); transition: all 0.3s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'"><i class="fas fa-chevron-right me-2" style="font-size: 0.8rem;"></i>Refund and Cancellation Policy</a></li>
                         <li class="mb-2"><a href="{% url 'store:shipping_policy' %}" class="text-decoration-none" style="color: rgba(255,255,255,0.8); transition: all 0.3s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'"><i class="fas fa-chevron-right me-2" style="font-size: 0.8rem;"></i>Shipping and Return Policy</a></li>
                         <li class="mb-2"><a href="{% url 'store:terms_conditions' %}" class="text-decoration-none" style="color: rgba(255,255,255,0.8); transition: all 0.3s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'"><i class="fas fa-chevron-right me-2" style="font-size: 0.8rem;"></i>Terms & Conditions</a></li>
+                        <li class="mb-2"><a href="{% url 'store:privacy_policy' %}" class="text-decoration-none" style="color: rgba(255,255,255,0.8); transition: all 0.3s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'"><i class="fas fa-chevron-right me-2" style="font-size: 0.8rem;"></i>Privacy Policy</a></li>
                         {% if user.is_authenticated %}
                         <li class="mb-2"><a href="{% url 'accounts:my_orders' %}" class="text-decoration-none" style="color: rgba(255,255,255,0.8); transition: all 0.3s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'"><i class="fas fa-chevron-right me-2" style="font-size: 0.8rem;"></i>My Orders</a></li>
                         {% endif %}
@@ -329,13 +330,24 @@
                     </div>
 
                     <!-- Support Hours -->
-                    <div class="d-flex align-items-center" style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div class="d-flex align-items-center mb-3" style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
                         <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
                             <i class="fas fa-clock" style="color: white; font-size: 1rem;"></i>
                         </div>
                         <div style="min-width: 0; flex: 1;">
                             <p class="mb-1" style="color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 500;">Support Hours</p>
                             <p class="mb-0" style="color: rgba(255,255,255,0.9); font-size: 0.9rem; font-weight: 600;">Mon-Sat, 9AM-7PM</p>
+                        </div>
+                    </div>
+
+                    <!-- Owner Information -->
+                    <div class="d-flex align-items-center" style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                            <i class="fas fa-user-tie" style="color: white; font-size: 1rem;"></i>
+                        </div>
+                        <div style="min-width: 0; flex: 1;">
+                            <p class="mb-1" style="color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 500;">Owner</p>
+                            <p class="mb-0" style="color: rgba(255,255,255,0.9); font-size: 0.9rem; font-weight: 600;">Jagannath Mohapatra</p>
                         </div>
                     </div>
                 </div>
